@@ -111,7 +111,15 @@ def main():
             first.click()
         else:
             problems.append("rezultati: nema nijedne odigrane utakmice")
-        check("telefon-rezultati", pg, must=["Rezultati"])
+        has_fk_scorers = any(m["club"] == "fk" and m["status"] == "odigrano" and any(g.get("t") == ("h" if m["velez"] == "home" else "a") for g in m.get("goals") or []) for m in data["matches"])
+        check("telefon-rezultati", pg, must=["Rezultati"] + (["Strijelci sezone"] if has_fk_scorers else []))
+        # same view in dark mode
+        ctxd, pgd, _ = page_for("telefon-rezultati-tamno", 400, 860, "dark")
+        pgd.goto(url)
+        pgd.click("[data-tab=utakmice]")
+        pgd.click("#sub-rezultati")
+        check("telefon-rezultati-tamno", pgd, must=["Rezultati"])
+        ctxd.close()
         pg.click("[data-tab=tabela]")
         check("telefon-tabela", pg, must=["Tabela"])
         pg.click("[data-tab=vijesti]")

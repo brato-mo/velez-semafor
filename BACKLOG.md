@@ -10,7 +10,6 @@ traže novi APK, pa njih radi rjeđe i pažljivo.
 
 ## Lista
 
-- [ ] **Strijelci sezone**: u kartici Utakmice → Rezultati dodati listu strijelaca FK Veleža (golovi iz `goals`) i najefikasnijih RK Veleža (iz `top`), za sezonu 2026/27.
 - [ ] **Međusobni dueli**: kod sljedeće utakmice prikazati ranije rezultate protiv istog protivnika iz ove sezone (ako postoje u podacima).
 - [ ] **Pretraga vijesti**: polje za pretragu naslova i sažetaka u kartici Vijesti.
 - [ ] **Forma i statistika**: mali blok "Sezona u brojkama" (pobjede/neriješeno/porazi, golovi, domaćin/gost) za svaki klub.
@@ -21,4 +20,5 @@ traže novi APK, pa njih radi rjeđe i pažljivo.
 
 ## Urađeno
 
+- [x] 2026-10-22 · Strijelci sezone: u Rezultatima lista strijelaca FK Veleža (iz golova) i najefikasnijih RK Veleža (zbir iz izvještaja), sa trakama i napomenom koliko utakmica je obuhvaćeno.
 - [x] 2026-10-22 · Prva Android verzija (1.0): vijesti, raspored, rezultati, tabele, obavijesti, jutarnji pregled, rad bez interneta.
