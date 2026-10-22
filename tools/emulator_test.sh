@@ -14,6 +14,10 @@ adb root >/dev/null 2>&1
 sleep 3
 adb wait-for-device
 adb shell getprop ro.build.version.release > "$OUT/android-version.txt"
+# a freshly booted emulator often shows "Pixel Launcher isn't responding": let it settle and close such dialogs
+sleep 25
+nodialogs() { adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1; }
+nodialogs
 adb logcat -c
 
 adb install -r "$APK" > "$OUT/install.txt" 2>&1
@@ -21,6 +25,7 @@ adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS >> "$OUT/install.t
 adb shell cmd uimode night no
 adb shell am start -W -n $PKG/.MainActivity > "$OUT/start.txt" 2>&1
 sleep 35
+nodialogs; sleep 1
 adb exec-out screencap -p > "$OUT/1-start-light.png"
 
 # hourly job: registered? run it now (first run only remembers what it saw)
@@ -42,8 +47,11 @@ adb shell cmd statusbar collapse
 W=$(adb shell wm size | grep -oE '[0-9]+x[0-9]+' | tail -1 | cut -dx -f1)
 adb shell am start -W -n $PKG/.MainActivity >> "$OUT/start.txt" 2>&1
 sleep 3
-adb shell input tap $((W - 80)) 260
+H=$(adb shell wm size | grep -oE '[0-9]+x[0-9]+' | tail -1 | cut -dx -f2)
+nodialogs
+adb shell input tap $((W * 990 / 1080)) $((H * 317 / 2400))
 sleep 4
+nodialogs; sleep 1
 adb exec-out screencap -p > "$OUT/3-settings.png"
 adb shell input keyevent KEYCODE_BACK
 sleep 2
@@ -54,11 +62,12 @@ sleep 2
 adb shell am force-stop $PKG
 adb shell am start -W -n $PKG/.MainActivity >> "$OUT/start.txt" 2>&1
 sleep 25
+nodialogs; sleep 1
 adb exec-out screencap -p > "$OUT/4-start-dark.png"
 adb shell cmd uimode night no
 
-adb shell run-as $PKG ls -la files shared_prefs > "$OUT/app-files.txt" 2>&1
-adb shell run-as $PKG cat shared_prefs/velez.xml >> "$OUT/app-files.txt" 2>&1
+adb shell ls -la /data/data/$PKG/files /data/data/$PKG/shared_prefs > "$OUT/app-files.txt" 2>&1
+adb shell cat /data/data/$PKG/shared_prefs/velez.xml >> "$OUT/app-files.txt" 2>&1
 adb logcat -d > "$OUT/logcat-full.txt"
 grep -E "FATAL EXCEPTION|AndroidRuntime|$PKG|chromium" "$OUT/logcat-full.txt" | tail -300 > "$OUT/logcat.txt"
 if grep -q "FATAL EXCEPTION" "$OUT/logcat-full.txt"; then echo "CRASH" > "$OUT/result.txt"; else echo "OK" > "$OUT/result.txt"; fi

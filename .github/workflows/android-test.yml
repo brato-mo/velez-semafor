@@ -4,6 +4,10 @@ name: APK test na emulatoru
 # check and the morning summary, and saves screenshots and logs to the branch "ci-test".
 on:
   workflow_dispatch:
+    inputs:
+      api-level:
+        description: 'Android API level (34 = Android 14, 35 = Android 15)'
+        default: '35'
 
 permissions:
   contents: write
@@ -24,10 +28,10 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Run on emulator (Android 14)
+      - name: Run on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: ${{ inputs.api-level || '35' }}
           arch: x86_64
           target: google_apis
           profile: pixel_6
