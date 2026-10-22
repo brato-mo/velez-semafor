@@ -86,7 +86,16 @@ public class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 if (!request.isForMainFrame()) return false;
-                openExternal(request.getUrl());
+                Uri u = request.getUrl();
+                String scheme = u.getScheme() == null ? "" : u.getScheme().toLowerCase(Locale.ROOT);
+                if (scheme.equals("http") || scheme.equals("https")) {
+                    // news and other web links open inside the app, in ArticleActivity (no app bridge there)
+                    Intent a = new Intent(MainActivity.this, ArticleActivity.class);
+                    a.putExtra(ArticleActivity.EXTRA_URL, u.toString());
+                    startActivity(a);
+                } else {
+                    openExternal(u);
+                }
                 return true;
             }
 

@@ -30,6 +30,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ArticleActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <service
             android:name=".CheckJob"
             android:exported="true"

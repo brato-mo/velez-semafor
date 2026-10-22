@@ -1,13 +1,22 @@
 {
  "web": 2026102201,
  "apk": {
-  "versionCode": 1,
-  "versionName": "1.0",
+  "versionCode": 2,
+  "versionName": "1.1",
   "url": "https://github.com/brato-mo/velez-semafor/releases/latest/download/velez-semafor.apk",
   "page": "https://github.com/brato-mo/velez-semafor/releases/latest",
   "note": ""
  },
  "changelog": [
+  {
+   "date": "2026-10-22",
+   "version": "1.1",
+   "title": "Vijesti se otvaraju u aplikaciji",
+   "items": [
+    "Kad klikneš na vijest, ona se otvara unutar aplikacije, s dugmetom Zatvori, bez izlaska u vanjski pretraživač.",
+    "Ostale poveznice i dalje se otvaraju u telefonu kao i prije."
+   ]
+  },
   {
    "date": "2026-10-22",
    "version": "1.0",
