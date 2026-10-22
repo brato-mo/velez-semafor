@@ -1,0 +1,70 @@
+/data/data/io.github.bratomo.velez/files:
+total 136
+drwxrwx--x 2 u0_a209 u0_a209  4096 2026-10-22 11:53 .
+drwx------ 8 u0_a209 u0_a209  4096 2026-10-22 11:52 ..
+-rw------- 1 u0_a209 u0_a209 46243 2026-10-22 11:53 data.json
+-rw------- 1 u0_a209 u0_a209 62872 2026-10-22 11:52 good.html
+
+/data/data/io.github.bratomo.velez/shared_prefs:
+total 32
+drwxrwx--x 2 u0_a209 u0_a209 4096 2026-10-22 11:53 .
+drwx------ 8 u0_a209 u0_a209 4096 2026-10-22 11:52 ..
+-rw-rw---- 1 u0_a209 u0_a209  127 2026-10-22 11:52 WebViewChromiumPrefs.xml
+-rw-rw---- 1 u0_a209 u0_a209 3842 2026-10-22 11:53 velez.xml
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <set name="seenResults">
+        <string>fk-2627-02-bsk-velez:2:0</string>
+        <string>fk-2627-05-velez-radnik:1:1</string>
+        <string>fk-2627-08-zrinjski-velez:2:0</string>
+        <string>rk-2627-02-velez-zrinjski:21:30</string>
+        <string>fk-2627-06-zeljeznicar-velez:3:1</string>
+        <string>fk-2627-07-velez-sarajevo:1:0</string>
+        <string>rk-2627-01-gorazde-velez:33:27</string>
+        <string>fk-2627-04-celik-velez:3:0</string>
+        <string>fk-2627-03-velez-sloga:2:0</string>
+        <string>fk-2627-09-velez-siroki:0:0</string>
+        <string>rk-2627-03-gracanica-velez:29:26</string>
+        <string>fk-2627-01-borac-velez:3:1</string>
+    </set>
+    <string name="lastBg">2026-10-22T11:53:32Z</string>
+    <set name="seenNews">
+        <string>fkvelez-sluzbeno-benjamin-tatar-novi-fudbaler-rodjenih</string>
+        <string>fkvelez-najava-duel-starih-rivala-na-stadionu-rodjeni-3</string>
+        <string>fkvelez-omladinac-amel-tiro-pozvan-u-u-18-reprezentaciju-bosne-i-hercegovine</string>
+        <string>fkvelez-izvjestaj-rodjeni-upisali-prvu-pobjedu-u-novoj-sezoniizvjestaj</string>
+        <string>fkvelez-sluzbeno-almir-aganspahic-novi-fudbaler-rodjenih</string>
+        <string>fkvelez-izvjestaj-slavlje-juniora-u-gradskom-derbiju</string>
+        <string>fkvelez-izvjestaj-bravo-rodjeni-pobjede-svih-omladinskih-selekcija</string>
+        <string>fkvelez-izvjestaj-bez-golova-u-duelu-veleza-i-sirokog-brijega</string>
+        <string>fkvelez-izvjestaj-poraz-rodjenih-na-grbavici-2</string>
+        <string>klix-konacno-pocelo-rukometno-prvenstvo-bih-261015044</string>
+        <string>fkvelez-izvjestaj-slavlje-pionira-poraz-kadetske-selekcije-juniori-remizirali</string>
+        <string>fkvelez-sluzbeno-saopstenje-necemo-dopustiti-da-nasi-navijaci-budu-zlostavljani-i-anatemisani</string>
+        <string>fkvelez-izvjestaj-bez-pobjednika-u-duelu-veleza-i-radnika</string>
+        <string>klix-zrijebanje-parova-sesnaestine-finala-kupa-bih-261008096</string>
+        <string>fkvelez-izvjestaj-omladinske-selekcije-veleza-bez-bodovnog-ucinka</string>
+        <string>fkvelez-sluzbeno-damir-milanovic-novi-trener-rodjenih</string>
+        <string>fkvelez-izvjestaj-poraz-juniora-u-zaostalom-mecu</string>
+        <string>svijetrukometa-gracanica-savladala-velez-i-upisala-prve-ovosezonske-bodove</string>
+        <string>fkvelez-sluzbeno-armin-spahic-nije-vise-fudbaler-veleza</string>
+        <string>fkvelez-najava-vrijeme-je-za-nove-rodjene</string>
+        <string>oslobodjenje-pocinje-pl-bih-u-rukometu-gorazde-docekuje-velez</string>
+        <string>fkvelez-izvjestaj-poraz-rodjenih-u-gradskom-derbiju-2</string>
+        <string>nfsbih-odgodena-utakmica-velez-borac</string>
+        <string>fkvelez-izvjestaj-poraz-rodjenih-od-novajlije-bsk-a</string>
+        <string>nfsbih-wwin-liga-bosne-i-hercegovine-2026-38</string>
+        <string>fkvelez-sluzbeno-birsen-lekovic-novi-fudbaler-rodjenih</string>
+        <string>fkvelez-sluzbeno-ibro-rahimic-nije-vise-dio-fudbalskog-kluba-velez</string>
+        <string>svijetrukometa-zrinjski-uvjerljiv-u-mostarskom-derbiju-plemici-savladali-velez</string>
+        <string>fkvelez-izvjestaj-velika-pobjeda-rodjenih-2</string>
+        <string>fkvelez-sluzbeno-nino-vukasovic-novi-fudbaler-rodjenih</string>
+        <string>fkvelez-izvjestaj-tezak-poraz-u-zenici</string>
+        <string>fkvelez-sluzbeno-eldar-mehmedovic-novi-fudbaler-rodjenih</string>
+        <string>fkvelez-najava-rodjeni-pod-bijelim-brijegom-zele-pozitivan-rezultat</string>
+    </set>
+    <string name="lastMorning">2026-10-22T11:53:52Z</string>
+    <boolean name="askedOnce" value="true" />
+    <long name="morningAt" value="1792738800000" />
+    <string name="lastBgText">nema novih vijesti</string>
+</map>

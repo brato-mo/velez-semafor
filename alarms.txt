@@ -1,0 +1,26 @@
+      idle-options=Bundle[{android.pendingIntent.backgroundActivityAllowed=2, android:broadcast.temporaryAppAllowlistReasonCode=302, android:broadcast.temporaryAppAllowlistDuration=10000, android:broadcast.temporaryAppAllowlistReason=, android:broadcast.temporaryAppAllowlistType=0, android:broadcast.flags=8}]
+    RTC_WAKEUP #34: Alarm{da6dafd type 0 origWhen 1792738800000 whenElapsed 68895623 io.github.bratomo.velez}
+      tag=*walarm*:io.github.bratomo.velez.MORNING
+      type=RTC_WAKEUP origWhen=2026-10-23 07:00:00.000 window=0 exactAllowReason=policy_permission repeatInterval=0 count=0 flags=0x5
+      policyWhenElapsed: requester=+19h6m7s777ms app_standby=-57s543ms device_idle=-- battery_saver=-57s543ms
+      whenElapsed=+19h6m7s777ms maxWhenElapsed=+19h6m7s777ms
+      operation=PendingIntent{37283f2: PendingIntentRecord{b221a43 io.github.bratomo.velez broadcastIntent}}
+      idle-options=Bundle[{android.pendingIntent.backgroundActivityAllowed=2, android:broadcast.temporaryAppAllowlistReasonCode=302, android:broadcast.temporaryAppAllowlistDuration=10000, android:broadcast.temporaryAppAllowlistReason=, android:broadcast.temporaryAppAllowlistType=0, android:broadcast.flags=8}]
+    ELAPSED_WAKEUP #35: Alarm{457c8c0 type 2 origWhen 75641582 whenElapsed 75641582 com.google.android.networkstack}
+      tag=*walarm*:DhcpClient.wlan0.REBIND
+      type=ELAPSED_WAKEUP origWhen=+20h58m33s736ms window=0 exactAllowReason=listener repeatInterval=0 count=0 flags=0x9
+      policyWhenElapsed: requester=+20h58m33s736ms app_standby=-1m26s233ms device_idle=-- battery_saver=--
+      whenElapsed=+20h58m33s736ms maxWhenElapsed=+20h58m33s736ms
+      listener=android.os.BinderProxy@d0b29f9
+      idle-options=Bundle[{android.pendingIntent.backgroundActivityAllowed=2, android:broadcast.temporaryAppAllowlistReasonCode=302, android:broadcast.temporaryAppAllowlistDuration=10000, android:broadcast.temporaryAppAllowlistReason=, android:broadcast.temporaryAppAllowlistType=0, android:broadcast.flags=8}]
+--
+        Snapshot:
+          type=RTC_WAKEUP tag=*walarm*:io.github.bratomo.velez.MORNING 
+          policyWhenElapsed: requester=+19h6m7s777ms app_standby=-58s589ms device_idle=-- battery_saver=-58s589ms
+  
+  Top Alarms:
+    +908ms running, 2 wakeups, 2 alarms: 1000:android
+      *walarm*:WriteBufferAlarm
+    +508ms running, 0 wakeups, 1 alarms: 1000:android
+      *alarm*:com.android.server.action.NETWORK_STATS_POLL
+    +283ms running, 13 wakeups, 13 alarms: 1000:android

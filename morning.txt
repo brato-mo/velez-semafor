@@ -1,0 +1,2 @@
+Broadcasting: Intent { act=io.github.bratomo.velez.MORNING flg=0x400000 cmp=io.github.bratomo.velez/.MorningReceiver }
+Broadcast completed: result=0

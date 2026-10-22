@@ -1,0 +1,22 @@
+Starting: Intent { cmp=io.github.bratomo.velez/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: io.github.bratomo.velez/.MainActivity
+TotalTime: 3184
+WaitTime: 3244
+Complete
+Starting: Intent { cmp=io.github.bratomo.velez/.MainActivity }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: io.github.bratomo.velez/.MainActivity
+TotalTime: 0
+WaitTime: 30
+Complete
+Starting: Intent { cmp=io.github.bratomo.velez/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: io.github.bratomo.velez/.MainActivity
+TotalTime: 1821
+WaitTime: 1824
+Complete
