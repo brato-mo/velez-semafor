@@ -1,0 +1,50 @@
+name: APK test na emulatoru
+
+# Installs the latest released APK on an Android emulator, opens it, runs the background
+# check and the morning summary, and saves screenshots and logs to the branch "ci-test".
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the latest APK
+        run: curl -sSfL -o velez-semafor.apk https://github.com/${{ github.repository }}/releases/latest/download/velez-semafor.apk
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run on emulator (Android 14)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash tools/emulator_test.sh velez-semafor.apk emu-out
+
+      - name: Save results to branch ci-test
+        if: always()
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          [ -d emu-out ] || exit 0
+          cd emu-out
+          git init -q -b ci-test
+          git config user.name "velez-semafor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Emulator test ${{ github.run_id }}"
+          git push -q -f "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}" ci-test
