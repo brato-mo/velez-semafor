@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="velez-app" content="1">
-<meta name="velez-version" content="2026102201">
+<meta name="velez-version" content="2026102301">
 <title>Velež Semafor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -207,6 +207,9 @@ th{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercas
 td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 tr:last-child td{border-bottom:0}
 th.team,td.team{text-align:left;width:40%}
+.crest{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--sunk);border:1px solid var(--line);font-size:8.5px;font-weight:700;letter-spacing:.02em;color:var(--muted);margin-right:8px;vertical-align:middle;overflow:hidden;flex:none}
+.crest img{width:100%;height:100%;object-fit:contain}
+tr.me .crest{color:var(--ink);border-color:var(--ink)}
 td.pos{color:var(--muted);width:2.4em}
 td.pts{font-weight:700}
 tr.me td{background:var(--red-soft);font-weight:700}
@@ -595,6 +598,17 @@ select.time:disabled{opacity:.5}
     }
     return h;
   }
+  function crestAbbr(name) {
+    const w = String(name || '').replace(/[^\p{L}\s]/gu, ' ').trim().split(/\s+/).filter(Boolean);
+    if (!w.length) return '?';
+    if (w.length === 1) return w[0].slice(0, 3).toUpperCase();
+    return w.slice(0, 2).map((x) => x[0]).join('').toUpperCase();
+  }
+  function crest(r) {
+    const url = r.logo ? safeUrl(r.logo) : '';
+    const inner = url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : esc(crestAbbr(r.team));
+    return `<span class="crest" aria-hidden="true">${inner}</span>`;
+  }
   function tableBlock(c) {
     const st = S.standings[c];
     const head = `<h3 class="club-h">${tag(c)} ${esc(CLUBS[c].full)} <small>${esc(st ? `${st.comp} ${st.season || ''}` : '')}</small></h3>`;
@@ -602,7 +616,7 @@ select.time:disabled{opacity:.5}
     if (!st || !Array.isArray(st.rows) || !st.rows.length) return head + `<ul class="card">${emptyRow('Tabela još nije upisana.')}</ul>`;
     const rows = st.rows.map((r) => {
       const gd = (r.gf != null && r.ga != null) ? r.gf - r.ga : null;
-      return `<tr class="${r.team === 'Velež' ? 'me' : ''}"><td class="pos">${esc(r.pos)}</td><td class="team">${esc(r.team)}</td><td>${esc(r.p)}</td><td>${esc(r.w)}</td><td>${esc(r.d)}</td><td>${esc(r.l)}</td><td>${r.gf != null ? `${esc(r.gf)}:${esc(r.ga)}` : '—'}</td><td>${gd == null ? '—' : (gd > 0 ? '+' + gd : String(gd).replace('-', '−'))}</td><td class="pts">${esc(r.pts)}</td></tr>`;
+      return `<tr class="${r.team === 'Velež' ? 'me' : ''}"><td class="pos">${esc(r.pos)}</td><td class="team">${crest(r)}${esc(r.team)}</td><td>${esc(r.p)}</td><td>${esc(r.w)}</td><td>${esc(r.d)}</td><td>${esc(r.l)}</td><td>${r.gf != null ? `${esc(r.gf)}:${esc(r.ga)}` : '—'}</td><td>${gd == null ? '—' : (gd > 0 ? '+' + gd : String(gd).replace('-', '−'))}</td><td class="pts">${esc(r.pts)}</td></tr>`;
     }).join('');
     const src = safeUrl(st.source);
     return head + `<div class="tbl"><table><thead><tr><th>#</th><th class="team">Klub</th><th title="utakmice">U</th><th title="pobjede">P</th><th title="neriješeno">N</th><th title="izgubljene">I</th><th>Golovi</th><th title="gol-razlika">GR</th><th>Bod</th></tr></thead><tbody>${rows}</tbody></table></div>

@@ -19,8 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Add new official posts
-        run: python3 tools/fetch_fkvelez.py --msg-file "$RUNNER_TEMP/msg.txt"
+      - name: Add new official posts and stamp the check time
+        run: |
+          python3 tools/fetch_fkvelez.py --msg-file "$RUNNER_TEMP/msg.txt"
+          # every run stamps meta.lastCheck, so the app shows when the source was last checked
+          python3 tools/velez_data.py touch --by "automatska provjera (svakih 20 min)"
 
       - name: Commit and push
         run: |
@@ -28,6 +31,7 @@ jobs:
             echo "Nema promjena."
             exit 0
           fi
+          [ -s "$RUNNER_TEMP/msg.txt" ] || echo "Provjera izvora fkvelez.ba: nema novih objava" > "$RUNNER_TEMP/msg.txt"
           git config user.name "velez-semafor-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/data/velez.json
@@ -38,7 +42,9 @@ jobs:
             git fetch -q origin main
             git reset -q --hard origin/main
             python3 tools/fetch_fkvelez.py --msg-file "$RUNNER_TEMP/msg.txt"
+            python3 tools/velez_data.py touch --by "automatska provjera (svakih 20 min)"
             if git diff --quiet -- docs/data/velez.json; then exit 0; fi
+            [ -s "$RUNNER_TEMP/msg.txt" ] || echo "Provjera izvora fkvelez.ba: nema novih objava" > "$RUNNER_TEMP/msg.txt"
             git add docs/data/velez.json
             git commit -q -F "$RUNNER_TEMP/msg.txt"
             sleep $((i * 5))
