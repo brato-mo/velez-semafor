@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="velez-app" content="1">
+<meta name="velez-version" content="2026102201">
+<title>Velež Semafor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&display=swap">
+<style>
+/* Layout: jedna kolona aplikacije (do 820px). Ljepljiva traka s karticama; tamni „semafor“ sljedeće utakmice
+   (LED cifre, stadionska tabla) jedini je glasni element, sve ostalo su mirne liste na papirnoj podlozi. */
+:root{
+  --bg:#F3F0F0; --surface:#FFFFFF; --sunk:#E9E3E3; --ink:#1B1315; --muted:#685C5F; --faint:#93888A; --line:#E0D6D7;
+  --red:#C3121E; --red-soft:#FBE4E5; --on-red:#FFFFFF;
+  --board:#161113; --board-hi:#221A1C; --board-line:#352B2E; --board-ink:#FAF3EC; --board-muted:#A79A9D;
+  --led:#FFB13B; --led-red:#FF4D57;
+  --win:#1C7A4A; --win-soft:#DFF1E6; --draw:#8F6106; --draw-soft:#F5ECD6; --loss:#4B4346; --loss-soft:#E7E1E2;
+  --shadow:0 1px 2px rgb(27 19 21 / .07), 0 14px 30px -18px rgb(27 19 21 / .45);
+  --f-display:"Big Shoulders Display","Big Shoulders","Arial Narrow","Roboto Condensed","sans-serif-condensed",Impact,sans-serif;
+  --f-body:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131012; --surface:#1C1719; --sunk:#0F0C0D; --ink:#F2EBEB; --muted:#ABA0A2; --faint:#7E7376; --line:#31282B;
+    --red:#EF3D49; --red-soft:#3A1A1E; --on-red:#1A0B0D;
+    --board:#0A0809; --board-hi:#181213; --board-line:#2C2326; --board-ink:#FAF3EC; --board-muted:#9E9295;
+    --led:#FFB13B; --led-red:#FF5A63;
+    --win:#45C185; --win-soft:#14301F; --draw:#E3A841; --draw-soft:#33280F; --loss:#A69C9F; --loss-soft:#2A2427;
+    --shadow:0 1px 2px rgb(0 0 0 / .45), 0 16px 32px -18px rgb(0 0 0 / .8);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131012; --surface:#1C1719; --sunk:#0F0C0D; --ink:#F2EBEB; --muted:#ABA0A2; --faint:#7E7376; --line:#31282B;
+  --red:#EF3D49; --red-soft:#3A1A1E; --on-red:#1A0B0D;
+  --board:#0A0809; --board-hi:#181213; --board-line:#2C2326; --board-ink:#FAF3EC; --board-muted:#9E9295;
+  --led:#FFB13B; --led-red:#FF5A63;
+  --win:#45C185; --win-soft:#14301F; --draw:#E3A841; --draw-soft:#33280F; --loss:#A69C9F; --loss-soft:#2A2427;
+  --shadow:0 1px 2px rgb(0 0 0 / .45), 0 16px 32px -18px rgb(0 0 0 / .8);
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+img{max-width:100%}
+[hidden]{display:none!important}
+a{color:inherit}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:4px}
+.wrap{max-width:820px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* zaglavlje */
+.mast{display:flex;align-items:flex-end;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;padding-block:18px 12px}
+.brand{margin:0;font-family:var(--f-display);font-weight:900;font-size:34px;line-height:.9;letter-spacing:.015em;text-transform:uppercase;display:flex;gap:9px;align-items:baseline}
+.brand .v{color:var(--red)}
+.mast-r{display:flex;align-items:center;gap:10px;margin-left:auto;min-width:0}
+.status{margin:0;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px;min-width:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.dot.ok{background:var(--win)} .dot.late{background:var(--draw)}
+.icon-btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:38px;height:38px;border-radius:999px;display:inline-grid;place-items:center;cursor:pointer;flex:none;padding:0}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn[aria-pressed="true"]{border-color:var(--red);color:var(--red)}
+.icon-btn.small{width:30px;height:30px;border-color:transparent;background:transparent;color:var(--muted)}
+.icon-btn.small svg{width:16px;height:16px}
+.icon-btn.spin svg{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+@supports (backdrop-filter:blur(8px)){.tabs{background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px)}}
+.tabs-in{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs-in::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:0;background:none;font-weight:600;font-size:14.5px;color:var(--muted);padding:12px 12px 10px;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.tab:first-child{padding-left:2px}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--red)}
+.count{background:var(--red);color:var(--on-red);font-size:11px;font-weight:700;border-radius:999px;min-width:19px;height:19px;padding:0 6px;display:inline-grid;place-items:center;line-height:1}
+
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-block:16px 2px}
+.seg{display:inline-flex;background:var(--sunk);border-radius:999px;padding:3px;gap:2px}
+.seg button{appearance:none;border:0;background:transparent;font-size:13.5px;font-weight:600;color:var(--muted);padding:6px 14px;border-radius:999px;cursor:pointer}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .14)}
+
+main{padding-block:4px 8px;min-height:50vh}
+.sec-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:28px 0 10px}
+.sec{margin:0;font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1;letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.sec-row .sec{margin:0}
+.club-h{margin:22px 0 8px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.club-h small{font-weight:500;letter-spacing:0;text-transform:none;color:var(--faint);font-size:13px}
+.day-h{margin:20px 0 8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.link-btn{appearance:none;border:0;background:none;padding:4px 0;color:var(--red);font-weight:600;font-size:13.5px;cursor:pointer}
+.link-btn:hover{text-decoration:underline}
+.ghost-btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ghost-btn:hover{border-color:var(--faint)}
+.ghost-btn:disabled{opacity:.5;cursor:default}
+.btn{appearance:none;border:0;background:var(--red);color:var(--on-red);border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;flex:none}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+
+/* semafor */
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px;margin-top:14px}
+.panel{min-width:0;container-type:inline-size;display:flex;flex-direction:column;border-radius:14px;box-shadow:var(--shadow)}
+.board{position:relative;overflow:hidden;background:var(--board);color:var(--board-ink);border:1px solid var(--board-line);border-radius:14px 14px 0 0;padding:14px 16px 16px;flex:1}
+.board::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgb(255 255 255 / .05) 1px,transparent 1.4px);background-size:6px 6px}
+.board>*{position:relative}
+.b-top{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:11.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--board-muted)}
+.b-sport{color:var(--board-ink);font-weight:700}
+.b-chip{margin-left:auto;border:1px solid var(--board-line);border-radius:5px;padding:2px 7px;color:var(--board-ink);letter-spacing:.08em}
+.b-chip.hot{border-color:var(--led);color:var(--led)}
+.b-chip.live{border-color:var(--led-red);color:var(--led-red);animation:blink 1.6s steps(2,start) infinite}
+@keyframes blink{50%{opacity:.35}}
+.b-teams{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:start;gap:10px;margin:16px 0 14px}
+.b-team{font-family:var(--f-display);font-weight:800;text-transform:uppercase;font-size:clamp(25px,9.5cqi,42px);line-height:.92;letter-spacing:.01em;overflow-wrap:break-word;text-wrap:balance;min-width:0}
+.b-team.long{font-size:clamp(21px,7.4cqi,34px)}
+.b-team.xlong{font-size:clamp(18px,6.2cqi,28px)}
+.b-team.away{text-align:right}
+.b-team.is-v{color:var(--led-red)}
+.b-team small{display:block;font-family:var(--f-body);font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--board-muted);margin-top:7px}
+.b-vs{font-family:var(--f-display);font-weight:700;font-size:clamp(22px,7cqi,30px);line-height:.92;color:var(--board-muted)}
+.b-clock{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cell{background:var(--board-hi);border:1px solid var(--board-line);border-radius:8px;padding:9px 6px 7px;text-align:center;min-width:0}
+.led{display:block;font-family:var(--f-display);font-weight:900;font-size:clamp(36px,14cqi,58px);line-height:1;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:var(--led)}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .led{background:radial-gradient(circle,var(--led) 0 1.2px,transparent 1.55px) 0 0/3px 3px;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+}
+.led.dim{opacity:.28}
+.lab{display:block;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--board-muted);margin-top:5px}
+.b-when{margin-top:14px;font-size:14.5px;color:var(--board-ink)}
+.b-when b{font-weight:700}
+.b-where{font-size:13px;color:var(--board-muted)}
+.b-note{margin-top:8px;font-size:12.5px;color:var(--board-muted)}
+.board.empty .b-teams{grid-template-columns:1fr}
+.strip{background:var(--surface);border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:13.5px;min-width:0}
+.s-item{display:inline-flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.s-lab{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint)}
+.s-item b{font-variant-numeric:tabular-nums}
+.form{display:inline-flex;gap:3px}
+
+/* oznake */
+.res{width:24px;height:24px;border-radius:6px;display:inline-grid;place-items:center;font-weight:700;font-size:12px;flex:none;line-height:1}
+.res.P{background:var(--win-soft);color:var(--win)}
+.res.N{background:var(--draw-soft);color:var(--draw)}
+.res.I{background:var(--loss-soft);color:var(--loss)}
+.form .res{width:20px;height:20px;font-size:11px;border-radius:5px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.07em;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--ink);line-height:1.5}
+.tag.fk{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.new{background:var(--red);color:var(--on-red);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:4px;line-height:1.4}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--sunk);color:var(--muted)}
+.pill.warn{background:var(--draw-soft);color:var(--draw)}
+.pill.wait{background:var(--red-soft);color:var(--red)}
+
+/* liste */
+.card{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.card>li+li{border-top:1px solid var(--line)}
+.empty-row{padding:16px 14px;color:var(--muted);font-size:14px}
+.fx{display:grid;grid-template-columns:5.4em minmax(0,1fr);gap:12px;padding:11px 14px;align-items:start}
+.fx-when b{display:block;font-family:var(--f-display);font-weight:800;font-size:19px;line-height:1.05;letter-spacing:.01em}
+.fx-when span{display:block;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.fx-when .tent{font-style:italic}
+.fx-main{min-width:0}
+.fx-teams{font-weight:600;font-size:15px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+.fx-teams .v{color:var(--red)}
+.fx-teams .dash{color:var(--faint)}
+.fx-sub{font-size:12.5px;color:var(--muted)}
+.fx-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.fx.bye{opacity:.75}
+.foot-note{font-size:12.5px;color:var(--muted);margin:8px 2px 0}
+
+.rs details>summary{display:grid;grid-template-columns:4.4em minmax(0,1fr) 24px 14px;align-items:center;gap:10px;padding:10px 12px 10px 14px;cursor:pointer;list-style:none}
+.rs details>summary::-webkit-details-marker{display:none}
+.rs details>summary::after{content:"";width:7px;height:7px;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);transform:rotate(45deg) translateY(-2px);justify-self:center;transition:transform .15s}
+.rs details[open]>summary::after{transform:rotate(225deg) translate(-2px,0)}
+.rs summary:hover{background:color-mix(in srgb,var(--sunk) 45%,transparent)}
+.rs-date b{display:block;font-family:var(--f-display);font-weight:800;font-size:17px;line-height:1.05}
+.rs-date span{display:block;font-size:11.5px;color:var(--muted)}
+.score-line{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;min-width:0}
+.score-line .t{font-weight:600;font-size:14.5px;line-height:1.25;overflow-wrap:anywhere}
+.score-line .h{text-align:right}
+.score-line .v{color:var(--red)}
+.score{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1;font-variant-numeric:tabular-nums;background:var(--sunk);border-radius:6px;padding:4px 8px;min-width:3.3em;text-align:center;white-space:nowrap}
+.score i{font-style:normal;color:var(--faint);padding-inline:2px}
+.rs-more{padding:2px 14px 14px;font-size:13.5px;color:var(--muted);display:grid;gap:8px}
+.rs-more p{margin:0}
+.goals{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 16px;background:var(--sunk);border-radius:8px;padding:8px 10px;color:var(--ink)}
+.goals .gh{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint)}
+.goals .gl{font-size:13.5px;overflow-wrap:anywhere}
+.rs-links{display:flex;flex-wrap:wrap;gap:12px}
+.rs-links a{color:var(--red);font-weight:600;text-decoration:none}
+.rs-links a:hover{text-decoration:underline}
+
+.ni{padding:12px 14px;display:grid;gap:4px}
+.n-meta{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;font-size:12px;color:var(--muted)}
+.n-meta .src{color:var(--faint)}
+.n-title{font-weight:600;font-size:15.5px;line-height:1.35;color:var(--ink);text-decoration:none;text-wrap:pretty}
+a.n-title:hover{text-decoration:underline;text-decoration-color:var(--red);text-underline-offset:3px}
+.n-sum{margin:0;color:var(--muted);font-size:14px;max-width:68ch}
+
+/* tabela */
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;min-width:420px}
+th{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);text-align:right;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th.team,td.team{text-align:left;width:40%}
+td.pos{color:var(--muted);width:2.4em}
+td.pts{font-weight:700}
+tr.me td{background:var(--red-soft);font-weight:700}
+tr.me td.pos{box-shadow:inset 3px 0 0 var(--red);color:var(--red)}
+.legend{font-size:12px;color:var(--faint);margin:8px 2px 0}
+
+.notice{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.notice>span{flex:1 1 240px;min-width:0}
+.notice b{color:var(--ink)}
+.banner{margin-top:14px;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;background:var(--board);color:var(--board-ink);border:1px solid var(--board-line);border-radius:12px;padding:12px 14px;font-size:14px}
+.banner>span{flex:1 1 220px;min-width:0}
+.banner b{color:var(--led)}
+.skeleton .led,.skeleton .b-team{opacity:.25}
+
+/* postavke */
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;min-width:0}
+.set-row .sl{min-width:0;flex:1}
+.set-row .sl b{display:block;font-weight:600;font-size:15px}
+.set-row .sl span{display:block;font-size:13px;color:var(--muted)}
+.set-ctl{display:flex;align-items:center;gap:10px;flex:none}
+.sw{position:relative;width:48px;height:28px;flex:none;display:inline-block}
+.sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:999px;background:var(--sunk);border:1px solid var(--line);transition:background .15s,border-color .15s}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgb(0 0 0 / .3);transition:transform .15s}
+.sw input:checked+span{background:var(--red);border-color:var(--red)}
+.sw input:checked+span::after{transform:translateX(20px)}
+.sw input:focus-visible+span{outline:2px solid var(--red);outline-offset:2px}
+.sw input:disabled{cursor:default}
+.sw input:disabled+span{opacity:.45}
+select.time{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:14px;font-variant-numeric:tabular-nums}
+select.time:disabled{opacity:.5}
+.cl{margin:4px 0 0;padding-left:18px;color:var(--muted);font-size:14px;display:grid;gap:3px}
+.cl-h{font-weight:600;font-size:15px}
+
+.foot{padding-block:28px 40px;font-size:12.5px;color:var(--faint);display:grid;gap:6px}
+.foot p{margin:0;max-width:70ch}
+.foot a{color:var(--muted)}
+
+.toast-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;pointer-events:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.toast{pointer-events:auto;width:100%;max-width:520px;background:var(--board);color:var(--board-ink);border:1px solid var(--board-line);border-radius:12px;padding:12px 12px 12px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);animation:rise .25s ease-out}
+@keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.toast-text{flex:1;min-width:0;font-size:14px}
+.toast-text b{color:var(--led);margin-right:6px}
+.toast button{appearance:none;border:1px solid var(--board-line);background:var(--board-hi);color:var(--board-ink);border-radius:8px;padding:6px 10px;font-weight:600;font-size:13px;cursor:pointer}
+.toast .x{border:0;background:none;color:var(--board-muted);font-size:18px;padding:2px 6px}
+
+@media (prefers-reduced-motion: reduce){
+  .b-chip.live,.toast,.icon-btn.spin svg{animation:none}
+  .rs details>summary::after,.sw span,.sw span::after{transition:none}
+}
+@media (max-width:420px){
+  .brand{font-size:30px}
+  .fx{grid-template-columns:4.7em minmax(0,1fr);gap:10px}
+  .rs details>summary{grid-template-columns:3.9em minmax(0,1fr) 22px 10px;gap:8px;padding-left:12px}
+  .score{font-size:20px;min-width:3em;padding:3px 6px}
+  .score-line .t{font-size:14px}
+}
+</style>
+</head>
+<body>
+<header class="wrap mast">
+  <h1 class="brand"><span class="v">Velež</span><span>Semafor</span></h1>
+  <div class="mast-r">
+    <p class="status" id="status"><span class="dot" id="status-dot"></span><span id="status-text">Učitavam podatke…</span></p>
+    <button class="icon-btn small" id="refresh" type="button" aria-label="Osvježi podatke"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg></button>
+    <button class="icon-btn" id="open-settings" type="button" aria-label="Postavke i obavijesti" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+  </div>
+</header>
+<nav class="tabs" aria-label="Dijelovi aplikacije">
+  <div class="wrap tabs-in" role="tablist">
+    <button class="tab" role="tab" id="tab-pregled" data-tab="pregled" aria-selected="true">Pregled</button>
+    <button class="tab" role="tab" id="tab-vijesti" data-tab="vijesti" aria-selected="false">Vijesti<span class="count" id="news-count" hidden></span></button>
+    <button class="tab" role="tab" id="tab-utakmice" data-tab="utakmice" aria-selected="false">Utakmice</button>
+    <button class="tab" role="tab" id="tab-tabela" data-tab="tabela" aria-selected="false">Tabela</button>
+  </div>
+</nav>
+<div class="wrap controls" id="controls">
+  <div class="seg" role="group" aria-label="Klub">
+    <button id="club-all" type="button" data-club="all" aria-pressed="true">Oba kluba</button>
+    <button id="club-fk" type="button" data-club="fk" aria-pressed="false">Fudbal</button>
+    <button id="club-rk" type="button" data-club="rk" aria-pressed="false">Rukomet</button>
+  </div>
+</div>
+<main class="wrap" id="view" aria-live="polite">
+  <div class="panels">
+    <article class="panel"><div class="board skeleton"><div class="b-top"><span class="b-sport">Sljedeća utakmica</span></div><div class="b-teams"><div class="b-team">Velež</div><div class="b-vs">–</div><div class="b-team away">…</div></div><div class="b-clock"><div class="cell"><span class="led dim">--</span><span class="lab">dana</span></div><div class="cell"><span class="led dim">--</span><span class="lab">sati</span></div><div class="cell"><span class="led dim">--</span><span class="lab">min</span></div></div><div class="b-when">Učitavam raspored…</div></div><div class="strip">&nbsp;</div></article>
+  </div>
+</main>
+<footer class="wrap foot">
+  <p>Neslužbena navijačka aplikacija za FK Velež i RK Velež. Podatke iz javnih izvora (fkvelez.ba, rk-velez.com, nfsbih.ba, svijet-rukometa.com, sportdc.net, klix.ba) skuplja Claude: provjera svaki sat i jutarnji pregled u 7:00.</p>
+  <p id="foot-change"></p>
+  <p><a href="https://github.com/brato-mo/velez-semafor" target="_blank" rel="noopener noreferrer">github.com/brato-mo/velez-semafor</a></p>
+</footer>
+<div class="toast-wrap" aria-live="assertive"><div class="toast" id="toast" hidden><div class="toast-text" id="toast-text"></div><button id="toast-open" type="button">Pogledaj</button><button class="x" id="toast-close" type="button" aria-label="Zatvori">×</button></div></div>
+
+<script>
+(() => {
+  'use strict';
+  const TZ = 'Europe/Sarajevo';
+  const REPO = 'https://github.com/brato-mo/velez-semafor';
+  const DATA_URL = 'data/velez.json', APP_URL = 'data/app.json';
+  const WEB_VERSION = Number((document.querySelector('meta[name="velez-version"]') || {}).content || 0);
+  const NATIVE = (window.VelezApp && typeof window.VelezApp === 'object') ? window.VelezApp : null;
+  const TABS = ['pregled', 'vijesti', 'utakmice', 'tabela', 'postavke'];
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ESC[c]);
+  const safeUrl = (u) => (typeof u === 'string' && /^https?:\/\//i.test(u) ? u : null);
+  const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
+  function lsGet(k) { try { const v = localStorage.getItem(k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* bez pohrane */ } }
+
+  const DAYS = ['nedjelja', 'ponedjeljak', 'utorak', 'srijeda', 'četvrtak', 'petak', 'subota'];
+  const DAYS_S = ['ned', 'pon', 'uto', 'sri', 'čet', 'pet', 'sub'];
+  const MONTHS = ['januar', 'februar', 'mart', 'april', 'maj', 'juni', 'juli', 'august', 'septembar', 'oktobar', 'novembar', 'decembar'];
+  const CLUBS = { fk: { tag: 'FK', sport: 'Fudbal', full: 'FK Velež' }, rk: { tag: 'RK', sport: 'Rukomet', full: 'RK Velež' } };
+  const KIND = { 'izvještaj': 'Izvještaj', 'najava': 'Najava', 'transfer': 'Transfer', 'klub': 'Klub', 'omladinci': 'Omladinska škola', 'saopštenje': 'Saopštenje', 'obavijest': 'Obavijest' };
+  const RES_LABEL = { P: 'Pobjeda', N: 'Neriješeno', I: 'Poraz' };
+
+  // ---- vrijeme u Sarajevu, neovisno o zoni uređaja
+  const pf = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+  function zp(ms) { const o = {}; for (const p of pf.formatToParts(new Date(ms))) o[p.type] = p.value; return { y: +o.year, mo: +o.month, d: +o.day, h: (+o.hour) % 24, mi: +o.minute, s: +o.second }; }
+  function zoff(ms) { const p = zp(ms); return Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, p.s) - Math.floor(ms / 1000) * 1000; }
+  function kickoff(m) {
+    if (!m || typeof m.date !== 'string') return null;
+    const d = m.date.match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!d) return null;
+    const t = String(m.time || '').match(/^(\d{1,2}):(\d{2})$/);
+    const g = Date.UTC(+d[1], +d[2] - 1, +d[3], t ? +t[1] : 0, t ? +t[2] : 0);
+    let ms = g - zoff(g); const o2 = zoff(ms); if (g - o2 !== ms) ms = g - o2;
+    return ms;
+  }
+  const pad = (n) => String(n).padStart(2, '0');
+  function dayStr(offsetDays = 0) { const p = zp(Date.now() + offsetDays * 864e5); return `${p.y}-${pad(p.mo)}-${pad(p.d)}`; }
+  function ymd(s) { const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? [+m[1], +m[2], +m[3]] : null; }
+  function dow(s) { const a = ymd(s); return a ? new Date(Date.UTC(a[0], a[1] - 1, a[2])).getUTCDay() : 0; }
+  function dayLong(s) { const a = ymd(s); if (!a) return ''; const w = DAYS[dow(s)]; return `${w[0].toUpperCase()}${w.slice(1)}, ${a[2]}. ${MONTHS[a[1] - 1]}`; }
+  function dayShort(s) { const a = ymd(s); return a ? `${DAYS_S[dow(s)]} ${a[2]}.${a[1]}.` : ''; }
+  function dateFull(s) { const a = ymd(s); return a ? `${a[2]}. ${MONTHS[a[1] - 1]} ${a[0]}.` : ''; }
+  function relDay(s) { if (s === dayStr()) return 'Danas'; if (s === dayStr(-1)) return 'Jučer'; if (s === dayStr(1)) return 'Sutra'; return null; }
+  function ago(iso) {
+    const t = typeof iso === 'number' ? iso : Date.parse(iso || ''); if (!t) return '';
+    const sec = (Date.now() - t) / 1000; if (sec < 90) return 'upravo';
+    const min = Math.round(sec / 60); if (min < 60) return `prije ${min} min`;
+    const h = Math.round(min / 60); if (h < 24) return `prije ${h} h`;
+    const p = zp(t); return `${p.d}.${p.mo}. u ${pad(p.h)}:${pad(p.mi)}`;
+  }
+  function pl(n, one, few, many) { const a = n % 10, b = n % 100; if (a === 1 && b !== 11) return one; if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return few; return many; }
+  const fmtInt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const cleanTitle = (t) => String(t || '').replace(/^(IZVJEŠTAJ|NAJAVA|SLUŽBENO)\s*:\s*/i, '');
+  function verLabel(v) { const s = String(v || ''); return /^\d{10}$/.test(s) ? `${+s.slice(6, 8)}.${+s.slice(4, 6)}.${s.slice(0, 4)}. (${+s.slice(8)})` : s; }
+
+  // ---- stanje
+  const S = {
+    tab: 'pregled', club: 'all', sub: 'raspored', db: 'wait', err: null, busy: false, fetchedAt: 0,
+    news: [], matches: [], standings: {}, meta: null, app: null, native: null,
+    ready: { news: false, matches: false, standings: false, meta: false },
+    seenAt: Date.now() - 72 * 3600e3, open: new Set()
+  };
+  const storedClub = lsGet('vs:club'); if (['all', 'fk', 'rk'].includes(storedClub)) S.club = storedClub;
+  const storedSub = lsGet('vs:sub'); if (['raspored', 'rezultati'].includes(storedSub)) S.sub = storedSub;
+  const storedSeen = lsGet('vs:seenAt'); if (typeof storedSeen === 'number') S.seenAt = storedSeen;
+  const hash = (location.hash || '').slice(1); if (TABS.includes(hash)) S.tab = hash;
+
+  const clubsOn = () => (S.club === 'all' ? ['fk', 'rk'] : [S.club]);
+  const isNew = (n) => (Date.parse(n.added || '') || 0) > S.seenAt;
+  function velezGoals(m) { return m.velez === 'home' ? [m.score.h, m.score.a] : [m.score.a, m.score.h]; }
+  function res(m) { if (m.status !== 'odigrano' || !m.score) return null; const [a, b] = velezGoals(m); return a > b ? 'P' : a < b ? 'I' : 'N'; }
+  function cmpUp(a, b) {
+    const ka = kickoff(a), kb = kickoff(b);
+    if (ka != null && kb != null) return ka - kb || (a.round ?? 99) - (b.round ?? 99);
+    if (ka != null) return -1; if (kb != null) return 1;
+    return (a.round ?? 99) - (b.round ?? 99);
+  }
+  const upList = (c) => S.matches.filter((m) => m.club === c && (m.status === 'zakazano' || m.status === 'slobodno')).sort(cmpUp);
+  const postponed = (c) => S.matches.filter((m) => m.club === c && m.status === 'odgođeno').sort((a, b) => (a.round ?? 99) - (b.round ?? 99));
+  const played = (c) => S.matches.filter((m) => m.club === c && m.status === 'odigrano' && m.score).sort((a, b) => (kickoff(b) || 0) - (kickoff(a) || 0));
+  function nextMatch(c) {
+    const now = Date.now();
+    return upList(c).find((m) => {
+      if (m.status !== 'zakazano') return false;
+      const k = kickoff(m);
+      return k == null || !m.confirmed || k > now - 3 * 3600e3;
+    }) || null;
+  }
+  const newsFor = (clubs) => S.news.filter((n) => clubs.includes(n.club) || n.club === 'oba')
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)) || (Date.parse(b.added || '') || 0) - (Date.parse(a.added || '') || 0));
+
+  // ---- dijelovi prikaza
+  const tag = (c) => `<span class="tag ${c === 'rk' ? 'rk' : 'fk'}">${CLUBS[c] ? CLUBS[c].tag : 'Velež'}</span>`;
+  const resChip = (m) => { const r = res(m); return r ? `<span class="res ${r}" title="${RES_LABEL[r]}">${r}</span>` : ''; };
+  const teamHtml = (name, isV) => `<span class="${isV ? 'v' : ''}">${esc(name)}</span>`;
+
+  function cells(vals, dim) {
+    return `<div class="b-clock">${vals.map(([v, l]) => `<div class="cell"><span class="led${dim ? ' dim' : ''}">${esc(v)}</span><span class="lab">${esc(l)}</span></div>`).join('')}</div>`;
+  }
+  function board(c, m) {
+    const k = kickoff(m), now = Date.now();
+    const timed = !!(m.confirmed && m.date && m.time && k != null);
+    const dur = (c === 'fk' ? 2 : 1.5) * 3600e3;
+    let chip = '';
+    if (timed && now >= k && now < k + dur) chip = '<span class="b-chip live">U toku</span>';
+    else if (timed && m.date === dayStr()) chip = '<span class="b-chip hot">Danas</span>';
+    else if (timed && m.date === dayStr(1)) chip = '<span class="b-chip hot">Sutra</span>';
+    else if (!m.confirmed && m.date) chip = '<span class="b-chip">Okvirno</span>';
+    let clock;
+    if (timed && k > now) {
+      const diff = k - now, d = Math.floor(diff / 864e5), h = Math.floor((diff % 864e5) / 36e5), mi = Math.floor((diff % 36e5) / 6e4);
+      clock = cells([[pad(d), pl(d, 'dan', 'dana', 'dana')], [pad(h), pl(h, 'sat', 'sata', 'sati')], [pad(mi), 'min']], false);
+    } else clock = cells([['--', 'dana'], ['--', 'sati'], ['--', 'min']], true);
+    let when;
+    if (m.date && m.confirmed) when = `${dayLong(m.date)}${m.time ? ` · <b>${esc(m.time)}</b>` : ''}`;
+    else if (m.date) when = `Okvirno: <b>${esc(m.window || dayLong(m.date))}</b> · satnica naknadno`;
+    else when = 'Termin još nije objavljen';
+    const homeV = m.velez === 'home';
+    const note = m.date ? m.note : '';
+    const size = (name) => { const w = Math.max(0, ...String(name || '').split(/\s+/).map((s) => s.length)); return w >= 10 ? ' xlong' : w >= 7 ? ' long' : ''; };
+    return `<div class="board">
+      <div class="b-top"><span class="b-sport">${CLUBS[c].sport}</span><span>${esc(m.comp)} · ${esc(m.stage)}</span>${m.tv ? `<span>${esc(m.tv)}</span>` : ''}${chip}</div>
+      <div class="b-teams"><div class="b-team${homeV ? ' is-v' : ''}${size(m.home)}">${esc(m.home)}<small>domaćin</small></div><div class="b-vs">–</div><div class="b-team away${!homeV ? ' is-v' : ''}${size(m.away)}">${esc(m.away)}<small>gost</small></div></div>
+      ${clock}
+      <div class="b-when">${when}</div>
+      ${m.venue ? `<div class="b-where">${esc(m.venue)}</div>` : ''}
+      ${note ? `<div class="b-note">${esc(note)}</div>` : ''}
+    </div>`;
+  }
+  function boardEmpty(c) {
+    return `<div class="board empty"><div class="b-top"><span class="b-sport">${CLUBS[c].sport}</span></div>
+      <div class="b-teams"><div class="b-team">${esc(CLUBS[c].full)}</div></div>
+      ${cells([['--', 'dana'], ['--', 'sati'], ['--', 'min']], true)}
+      <div class="b-when">Nema zakazanih utakmica.</div><div class="b-where">Raspored se dopunjava pri svakoj provjeri.</div></div>`;
+  }
+  function strip(c) {
+    const pl5 = played(c), last = pl5[0], form = pl5.slice(0, 5).reverse();
+    const st = S.standings[c], me = st && Array.isArray(st.rows) ? st.rows.find((r) => r.team === 'Velež') : null;
+    const parts = [];
+    if (last) parts.push(`<span class="s-item"><span class="s-lab">Zadnja</span>${esc(last.home)} <b>${last.score.h}:${last.score.a}</b> ${esc(last.away)}</span>`);
+    if (form.length) parts.push(`<span class="s-item"><span class="s-lab">Forma</span><span class="form">${form.map(resChip).join('')}</span></span>`);
+    if (me) parts.push(`<span class="s-item"><span class="s-lab">Tabela</span><b>${me.pos}.</b> mjesto · ${me.pts} ${pl(me.pts, 'bod', 'boda', 'bodova')}</span>`);
+    return `<div class="strip">${parts.join('') || '<span class="s-item">Još nema odigranih utakmica.</span>'}</div>`;
+  }
+  function panel(c) {
+    if (!S.ready.matches) return `<article class="panel"><div class="board skeleton"><div class="b-top"><span class="b-sport">${CLUBS[c].sport}</span></div><div class="b-teams"><div class="b-team">Velež</div><div class="b-vs">–</div><div class="b-team away">…</div></div>${cells([['--', 'dana'], ['--', 'sati'], ['--', 'min']], true)}<div class="b-when">Učitavam raspored…</div></div><div class="strip">&nbsp;</div></article>`;
+    const m = nextMatch(c);
+    return `<article class="panel" aria-label="${esc(CLUBS[c].full)}: sljedeća utakmica">${m ? board(c, m) : boardEmpty(c)}${strip(c)}</article>`;
+  }
+
+  function fxRow(m, showClub) {
+    if (m.status === 'slobodno') {
+      return `<li class="fx bye"><div class="fx-when"><b>${esc(m.stage)}</b><span>slobodno</span></div><div class="fx-main"><div class="fx-teams">${showClub ? tag(m.club) : ''}Velež je slobodan</div>${m.note ? `<div class="fx-sub">${esc(m.note)}</div>` : ''}</div></li>`;
+    }
+    const k = kickoff(m), now = Date.now();
+    const chips = [];
+    let when, sub;
+    if (m.status === 'odgođeno') {
+      when = `<b>${esc(m.stage || '')}</b><span class="tent">novi termin naknadno</span>`;
+      sub = [m.comp, m.date ? `prvobitno ${dayShort(m.date)}${m.time ? ' u ' + m.time : ''}` : '', m.venue].filter(Boolean);
+      chips.push('<span class="pill warn">Odgođeno</span>');
+    } else if (m.date && m.confirmed) {
+      when = `<b>${esc(relDay(m.date) || dayShort(m.date))}</b><span>${m.time ? esc(m.time) : 'satnica naknadno'}</span>`;
+      sub = [`${m.comp} · ${m.stage}`, m.venue, m.tv];
+      if (m.time && k != null && now > k + 2.5 * 3600e3) chips.push('<span class="pill wait">Čeka rezultat</span>');
+    } else if (m.date) {
+      when = `<b>${esc(dayShort(m.date))}</b><span class="tent">okvirno</span>`;
+      sub = [`${m.comp} · ${m.stage}`, m.venue];
+      if (m.window) chips.push(`<span class="pill">Termin: ${esc(m.window)}</span>`);
+    } else {
+      when = `<b>${esc(m.stage || '')}</b><span class="tent">termin naknadno</span>`;
+      sub = [m.comp, m.venue];
+    }
+    return `<li class="fx"><div class="fx-when">${when}</div><div class="fx-main">
+      <div class="fx-teams">${showClub ? tag(m.club) : ''}${teamHtml(m.home, m.velez === 'home')}<span class="dash">–</span>${teamHtml(m.away, m.velez === 'away')}</div>
+      <div class="fx-sub">${sub.filter(Boolean).map(esc).join(' · ')}</div>
+      ${chips.length ? `<div class="fx-chips">${chips.join('')}</div>` : ''}
+    </div></li>`;
+  }
+
+  function groupGoals(list) {
+    const out = [];
+    for (const g of list) {
+      const prev = out.find((o) => o.n === g.n);
+      if (prev) prev.m.push(g.m); else out.push({ n: g.n, m: [g.m] });
+    }
+    return out.map((o) => `${esc(o.n)} ${o.m.map(esc).join(', ')}`).join(', ');
+  }
+  function rsRow(m, showClub) {
+    const id = String(m.id);
+    const info = [`${m.comp} · ${m.stage}`, m.venue, m.ht ? `poluvrijeme ${m.ht.h}:${m.ht.a}` : null, m.att ? `gledalaca ${fmtInt(m.att)}` : null].filter(Boolean);
+    let goals = '';
+    const goalsArr = Array.isArray(m.goals) ? m.goals : [], top = Array.isArray(m.top) ? m.top : [];
+    if (goalsArr.length) {
+      const h = goalsArr.filter((g) => g.t === 'h'), a = goalsArr.filter((g) => g.t === 'a');
+      goals = `<div class="goals"><span class="gh">${esc(m.home)}</span><span class="gh">${esc(m.away)}</span><span class="gl">${groupGoals(h) || '—'}</span><span class="gl">${groupGoals(a) || '—'}</span></div>`;
+    } else if (top.length) {
+      const fmt = (arr) => arr.map((g) => `${esc(g.n)} ${esc(g.g)}`).join(', ') || '—';
+      goals = `<div class="goals"><span class="gh">${esc(m.home)} · najefikasniji</span><span class="gh">${esc(m.away)} · najefikasniji</span><span class="gl">${fmt(top.filter((g) => g.t === 'h'))}</span><span class="gl">${fmt(top.filter((g) => g.t === 'a'))}</span></div>`;
+    } else if (m.score && m.score.h === 0 && m.score.a === 0) {
+      goals = '<p>Bez golova.</p>';
+    } else {
+      goals = '<p>Strijelci još nisu upisani.</p>';
+    }
+    const links = [];
+    const rep = safeUrl(m.report), src = safeUrl(m.source);
+    if (rep) links.push(`<a href="${esc(rep)}" target="_blank" rel="noopener noreferrer">Izvještaj ↗</a>`);
+    if (src && src !== rep) links.push(`<a href="${esc(src)}" target="_blank" rel="noopener noreferrer">Izvor: ${esc(host(src))} ↗</a>`);
+    return `<li class="rs"><details data-id="${esc(id)}"${S.open.has(id) ? ' open' : ''}>
+      <summary>
+        <span class="rs-date"><b>${esc(dayShort(m.date))}</b><span>${esc(m.stage || '')}</span></span>
+        <span class="score-line"><span class="t h${m.velez === 'home' ? ' v' : ''}">${showClub ? tag(m.club) + ' ' : ''}${esc(m.home)}</span><span class="score">${m.score.h}<i>:</i>${m.score.a}</span><span class="t a${m.velez === 'away' ? ' v' : ''}">${esc(m.away)}</span></span>
+        ${resChip(m)}
+      </summary>
+      <div class="rs-more"><p>${info.map(esc).join(' · ')}</p>${goals}${m.note ? `<p>${esc(m.note)}</p>` : ''}${links.length ? `<p class="rs-links">${links.join('')}</p>` : ''}</div>
+    </details></li>`;
+  }
+
+  function newsItem(n, withDate) {
+    const url = safeUrl(n.url);
+    const title = esc(cleanTitle(n.title));
+    const dateLabel = withDate ? `<span>${esc(relDay(n.date) || dayShort(n.date))}</span>` : '';
+    return `<li class="ni">
+      <div class="n-meta">${tag(n.club)}${dateLabel}<span>${esc(KIND[n.kind] || 'Vijest')}</span><span class="src">${esc(n.source || host(n.url))}</span>${isNew(n) ? '<span class="new">Novo</span>' : ''}</div>
+      ${url ? `<a class="n-title" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${title}</a>` : `<span class="n-title">${title}</span>`}
+      ${n.summary ? `<p class="n-sum">${esc(n.summary)}</p>` : ''}
+    </li>`;
+  }
+  const emptyRow = (t) => `<li class="empty-row">${esc(t)}</li>`;
+  const loadingRow = () => emptyRow('Učitavam…');
+
+  // ---- obavještenja unutar aplikacije
+  function updateBanner() {
+    const n = S.native, apk = S.app && S.app.apk;
+    if (!n || !apk || !(Number(apk.versionCode) > Number(n.versionCode || 0))) return '';
+    const url = safeUrl(apk.url);
+    return `<div class="banner"><span><b>Nova verzija ${esc(apk.versionName || '')}</b> aplikacije je spremna.${apk.note ? ' ' + esc(apk.note) : ''} Preuzmi je i instaliraj preko postojeće, podaci ostaju.</span>${url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Preuzmi</a>` : ''}</div>`;
+  }
+  function notifNudge() {
+    const n = S.native;
+    if (!n || n.notif === 'on' || lsGet('vs:nudge-off')) return '';
+    return `<div class="notice"><span><b>Obavijesti su isključene.</b> Uključi ih da ti na telefon stižu nove vijesti, rezultati i jutarnji pregled.</span><button class="btn" type="button" data-act="notif">Uključi</button><button class="link-btn" type="button" data-act="nudge-off">Ne sada</button></div>`;
+  }
+
+  function viewOverview() {
+    const clubs = clubsOn();
+    let h = updateBanner() + notifNudge();
+    h += `<div class="panels">${clubs.map(panel).join('')}</div>`;
+    const later = [];
+    for (const c of clubs) { const nm = nextMatch(c); later.push(...upList(c).filter((m) => m !== nm && m.status === 'zakazano').slice(0, 3)); }
+    later.sort(cmpUp);
+    h += `<div class="sec-row"><h2 class="sec">Dalje u rasporedu</h2><button class="link-btn" type="button" data-go="utakmice">Cijeli raspored</button></div>`;
+    h += `<ul class="card">${S.ready.matches ? (later.map((m) => fxRow(m, clubs.length > 1)).join('') || emptyRow('Nema drugih zakazanih utakmica.')) : loadingRow()}</ul>`;
+    const latest = newsFor(clubs).slice(0, 5);
+    h += `<div class="sec-row"><h2 class="sec">Najnovije vijesti</h2><button class="link-btn" type="button" data-go="vijesti">Sve vijesti</button></div>`;
+    h += `<ul class="card">${S.ready.news ? (latest.map((n) => newsItem(n, true)).join('') || emptyRow('Još nema vijesti.')) : loadingRow()}</ul>`;
+    return h;
+  }
+  function viewNews() {
+    const list = newsFor(clubsOn());
+    const fresh = list.filter(isNew).length;
+    let h = `<div class="sec-row"><h2 class="sec">Vijesti</h2>${fresh ? `<button class="ghost-btn" type="button" id="mark-read">Označi kao pročitano (${fresh})</button>` : ''}</div>`;
+    if (!S.ready.news) return h + `<ul class="card">${loadingRow()}</ul>`;
+    if (!list.length) return h + `<ul class="card">${emptyRow('Još nema vijesti za odabrani klub.')}</ul>`;
+    const groups = new Map();
+    for (const n of list) { const k = n.date || ''; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(n); }
+    for (const [d, items] of groups) h += `<h3 class="day-h">${esc(relDay(d) || dayLong(d) || 'Bez datuma')}</h3><ul class="card">${items.map((n) => newsItem(n, false)).join('')}</ul>`;
+    return h;
+  }
+  function viewMatches() {
+    const clubs = clubsOn();
+    let h = `<div class="sec-row"><h2 class="sec">Utakmice</h2><div class="seg" role="group" aria-label="Prikaz"><button id="sub-raspored" type="button" data-sub="raspored" aria-pressed="${S.sub === 'raspored'}">Raspored</button><button id="sub-rezultati" type="button" data-sub="rezultati" aria-pressed="${S.sub === 'rezultati'}">Rezultati</button></div></div>`;
+    for (const c of clubs) {
+      h += `<h3 class="club-h">${tag(c)} ${esc(CLUBS[c].full)} <small>${c === 'fk' ? 'WWin liga BiH i Kup BiH 2026/27' : 'Premijer liga BiH 2026/27'}</small></h3>`;
+      if (!S.ready.matches) { h += `<ul class="card">${loadingRow()}</ul>`; continue; }
+      if (S.sub === 'raspored') {
+        const up = upList(c);
+        h += `<ul class="card">${up.map((m) => fxRow(m, false)).join('') || emptyRow('Nema zakazanih utakmica.')}</ul>`;
+        const pp = postponed(c);
+        if (pp.length) h += `<h3 class="day-h">Odgođeno</h3><ul class="card">${pp.map((m) => fxRow(m, false)).join('')}</ul>`;
+        if (up.some((m) => !m.date && m.status === 'zakazano')) h += `<p class="foot-note">Parovi su po rasporedu lige. Datumi i satnice objavljuju se pred svako kolo i ovdje se upisuju čim izađu.</p>`;
+        else if (up.some((m) => m.date && !m.confirmed)) h += `<p class="foot-note">„Okvirno“ znači termin kola iz kalendara takmičenja; tačan dan i satnicu Savez objavljuje desetak dana prije kola.</p>`;
+      } else {
+        const pl5 = played(c);
+        h += `<ul class="card">${pl5.map((m) => rsRow(m, false)).join('') || emptyRow('Još nema odigranih utakmica.')}</ul>`;
+        const sum = pl5.reduce((acc, m) => { const [a, b] = velezGoals(m); acc.f += a; acc.a += b; acc[res(m)] += 1; return acc; }, { f: 0, a: 0, P: 0, N: 0, I: 0 });
+        if (pl5.length) h += `<p class="foot-note">${pl5.length} ${pl(pl5.length, 'utakmica', 'utakmice', 'utakmica')}: ${sum.P} ${pl(sum.P, 'pobjeda', 'pobjede', 'pobjeda')}, ${sum.N} neriješeno, ${sum.I} ${pl(sum.I, 'poraz', 'poraza', 'poraza')} · golovi ${sum.f}:${sum.a}. Dodirni utakmicu za strijelce.</p>`;
+      }
+    }
+    return h;
+  }
+  function tableBlock(c) {
+    const st = S.standings[c];
+    const head = `<h3 class="club-h">${tag(c)} ${esc(CLUBS[c].full)} <small>${esc(st ? `${st.comp} ${st.season || ''}` : '')}</small></h3>`;
+    if (!S.ready.standings) return head + `<ul class="card">${loadingRow()}</ul>`;
+    if (!st || !Array.isArray(st.rows) || !st.rows.length) return head + `<ul class="card">${emptyRow('Tabela još nije upisana.')}</ul>`;
+    const rows = st.rows.map((r) => {
+      const gd = (r.gf != null && r.ga != null) ? r.gf - r.ga : null;
+      return `<tr class="${r.team === 'Velež' ? 'me' : ''}"><td class="pos">${esc(r.pos)}</td><td class="team">${esc(r.team)}</td><td>${esc(r.p)}</td><td>${esc(r.w)}</td><td>${esc(r.d)}</td><td>${esc(r.l)}</td><td>${r.gf != null ? `${esc(r.gf)}:${esc(r.ga)}` : '—'}</td><td>${gd == null ? '—' : (gd > 0 ? '+' + gd : String(gd).replace('-', '−'))}</td><td class="pts">${esc(r.pts)}</td></tr>`;
+    }).join('');
+    const src = safeUrl(st.source);
+    return head + `<div class="tbl"><table><thead><tr><th>#</th><th class="team">Klub</th><th title="utakmice">U</th><th title="pobjede">P</th><th title="neriješeno">N</th><th title="izgubljene">I</th><th>Golovi</th><th title="gol-razlika">GR</th><th>Bod</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="foot-note">${esc(st.note || '')}${st.updated ? ` Ažurirano ${esc(ago(st.updated))}.` : ''}${src ? ` <a href="${esc(src)}" target="_blank" rel="noopener noreferrer">Izvor: ${esc(host(src))} ↗</a>` : ''}</p>`;
+  }
+  function viewTables() {
+    return `<div class="sec-row"><h2 class="sec">Tabela</h2></div>${clubsOn().map(tableBlock).join('')}<p class="legend">U utakmice · P pobjede · N neriješeno · I izgubljene · GR gol-razlika</p>`;
+  }
+  function viewNoData() {
+    return `<div class="notice"><span><b>Podaci se ne mogu učitati.</b> Telefon trenutno nema vezu s internetom, a podaci još nisu sačuvani na njemu. Provjeri internet pa pokušaj ponovo.</span><button class="btn" type="button" data-act="retry">Pokušaj ponovo</button></div>`;
+  }
+
+  // ---- postavke
+  const TIMES = (() => { const a = []; for (let h = 5; h <= 10; h++) { a.push(`${pad(h)}:00`); if (h < 10) a.push(`${pad(h)}:30`); } return a; })();
+  function swRow(key, title, sub, on, disabled) {
+    return `<li class="set-row"><span class="sl"><b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ''}</span><label class="sw"><input type="checkbox" data-set="${esc(key)}"${on ? ' checked' : ''}${disabled ? ' disabled' : ''} aria-label="${esc(title)}"><span></span></label></li>`;
+  }
+  function changelogEntry(e) {
+    const items = Array.isArray(e.items) ? e.items : [];
+    return `<h3 class="day-h">${esc(dateFull(e.date) || e.date || '')}${e.version ? ` · verzija ${esc(e.version)}` : ''}</h3><ul class="card"><li class="ni">${e.title ? `<span class="cl-h">${esc(e.title)}</span>` : ''}${items.length ? `<ul class="cl">${items.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}</li></ul>`;
+  }
+  function viewSettings() {
+    const n = S.native, a = S.app || {}, apk = a.apk || {};
+    let h = `<div class="sec-row"><h2 class="sec">Postavke</h2><button class="link-btn" type="button" data-go="pregled">Nazad na pregled</button></div>`;
+    h += updateBanner();
+    if (n) {
+      const s = n.s || {}, on = n.notif === 'on';
+      h += `<h3 class="club-h">Obavijesti na telefonu</h3><ul class="card">`;
+      h += `<li class="set-row"><span class="sl"><b>${on ? 'Obavijesti su uključene' : 'Obavijesti su isključene'}</b><span>${on ? 'Aplikacija provjerava novosti otprilike svaki sat, i kad je zatvorena.' : 'Uključi ih da ti stižu nove vijesti, rezultati i jutarnji pregled.'}</span></span>${on ? '' : '<button class="btn" type="button" data-act="notif">Uključi</button>'}</li>`;
+      h += swRow('news', 'Nove vijesti', 'Čim se pojavi nova vijest o Veležu', s.news !== false, !on);
+      h += swRow('results', 'Rezultati', 'Konačan rezultat sa strijelcima', s.results !== false, !on);
+      h += swRow('reminder', 'Podsjetnik pred utakmicu', 'Do tri sata prije početka', s.reminder !== false, !on);
+      const mt = TIMES.includes(s.morningTime) ? s.morningTime : '07:00';
+      h += `<li class="set-row"><span class="sl"><b>Jutarnji pregled</b><span>Sljedeće utakmice i novosti od jučer</span></span><span class="set-ctl"><select class="time" data-set="morningTime" aria-label="Vrijeme jutarnjeg pregleda"${!on || s.morning === false ? ' disabled' : ''}>${TIMES.map((t) => `<option${t === mt ? ' selected' : ''}>${t}</option>`).join('')}</select><label class="sw"><input type="checkbox" data-set="morning"${s.morning !== false ? ' checked' : ''}${!on ? ' disabled' : ''} aria-label="Jutarnji pregled"><span></span></label></span></li>`;
+      h += `</ul>`;
+      h += `<div class="btn-row"><button class="ghost-btn" type="button" data-act="test"${on ? '' : ' disabled'}>Pošalji probnu obavijest</button><button class="ghost-btn" type="button" data-act="check">Provjeri novosti sada</button></div>`;
+      if (n.battery === 'limited') h += `<div class="notice"><span><b>Štednja baterije može kasniti obavijesti.</b> Neki telefoni gase aplikacije u pozadini. Dozvoli rad u pozadini da provjera ide svaki sat.</span><button class="btn" type="button" data-act="battery">Dozvoli</button></div>`;
+      if (n.lastBg) h += `<p class="foot-note">Zadnja provjera u pozadini: ${esc(ago(n.lastBg))}${n.lastBgText ? ` · ${esc(n.lastBgText)}` : ''}.</p>`;
+    } else {
+      const url = safeUrl(apk.page) || REPO + '/releases/latest';
+      h += `<div class="notice"><span><b>Obavijesti rade u Android aplikaciji.</b> Preuzmi APK sa GitHuba i instaliraj ga na telefon.</span><a class="btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Preuzmi APK</a></div>`;
+    }
+    h += `<h3 class="club-h">O aplikaciji</h3><ul class="card">`;
+    h += `<li class="set-row"><span class="sl"><b>Verzija</b><span>${n ? `Aplikacija ${esc(n.versionName || '')} · ` : ''}izgled od ${esc(verLabel(WEB_VERSION))}</span></span></li>`;
+    h += `<li class="set-row"><span class="sl"><b>Podaci</b><span>${S.meta && S.meta.lastCheck ? `Zadnja provjera izvora ${esc(ago(S.meta.lastCheck))}` : 'Još nema provjere'}${S.fetchedAt ? ` · preuzeto na telefon ${esc(ago(S.fetchedAt))}` : ''}</span></span></li>`;
+    h += `<li class="set-row"><span class="sl"><b>Izvorni kod i preuzimanje</b><span>github.com/brato-mo/velez-semafor</span></span><a class="ghost-btn" href="${REPO}" target="_blank" rel="noopener noreferrer">Otvori ↗</a></li>`;
+    h += `</ul>`;
+    const log = Array.isArray(a.changelog) ? a.changelog.slice(0, 20) : [];
+    h += `<div class="sec-row"><h2 class="sec">Šta je novo</h2></div>`;
+    h += log.length ? log.map(changelogEntry).join('') : `<ul class="card">${emptyRow('Još nema zapisa.')}</ul>`;
+    return h;
+  }
+
+  // ---- iscrtavanje
+  function renderChrome() {
+    for (const b of document.querySelectorAll('[data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab === S.tab));
+    for (const b of document.querySelectorAll('.controls [data-club]')) b.setAttribute('aria-pressed', String(b.dataset.club === S.club));
+    $('#open-settings').setAttribute('aria-pressed', String(S.tab === 'postavke'));
+    $('#controls').hidden = S.tab === 'postavke';
+    const cnt = S.news.filter((n) => (clubsOn().includes(n.club) || n.club === 'oba') && isNew(n)).length;
+    const el = $('#news-count'); el.hidden = !cnt; el.textContent = cnt ? String(cnt) : '';
+    $('#refresh').classList.toggle('spin', S.busy);
+    const dot = $('#status-dot'), txt = $('#status-text');
+    if (S.busy && S.db !== 'ok') { dot.className = 'dot'; txt.textContent = 'Osvježavam…'; }
+    else if (S.db === 'none') { dot.className = 'dot late'; txt.textContent = 'Nema veze s internetom'; }
+    else if (S.db === 'cache') { dot.className = 'dot late'; txt.textContent = `Bez veze · podaci od ${ago(S.fetchedAt) || 'ranije'}`; }
+    else if (S.meta && S.meta.lastCheck) {
+      const age = Date.now() - (Date.parse(S.meta.lastCheck) || 0);
+      dot.className = 'dot ' + (age < 80 * 60e3 ? 'ok' : age > 3 * 3600e3 ? 'late' : '');
+      txt.textContent = `Provjereno ${ago(S.meta.lastCheck)}${age > 3 * 3600e3 ? ' · provjera kasni' : ''}`;
+    } else { dot.className = 'dot'; txt.textContent = S.db === 'wait' ? 'Učitavam podatke…' : 'Još nije bilo provjere'; }
+    const fc = $('#foot-change');
+    fc.textContent = S.meta && S.meta.lastChangeText ? `Zadnja promjena (${ago(S.meta.lastChange)}): ${S.meta.lastChangeText}` : '';
+  }
+  function render() {
+    renderChrome();
+    const v = $('#view');
+    if (S.tab === 'postavke') { v.innerHTML = viewSettings(); return; }
+    if (S.db === 'none') { v.innerHTML = viewNoData(); return; }
+    v.innerHTML = S.tab === 'vijesti' ? viewNews() : S.tab === 'utakmice' ? viewMatches() : S.tab === 'tabela' ? viewTables() : viewOverview();
+  }
+
+  function setTab(t) {
+    if (!TABS.includes(t)) return;
+    S.tab = t; render(); window.scrollTo({ top: 0 });
+    try { history.replaceState(null, '', t === 'pregled' ? location.pathname + location.search : '#' + t); } catch (e) { /* bez promjene adrese */ }
+  }
+
+  // ---- obavijest unutar aplikacije
+  let toastTimer = 0, toastAction = null;
+  function toast(html, label, fn, ms) {
+    $('#toast-text').innerHTML = html;
+    const b = $('#toast-open'); b.hidden = !label; b.textContent = label || ''; toastAction = fn || null;
+    $('#toast').hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('#toast').hidden = true; }, ms || 15000);
+  }
+  function newsToast(items) {
+    const first = items[0];
+    toast(`<b>${items.length === 1 ? 'Nova vijest' : `${items.length} ${pl(items.length, 'nova vijest', 'nove vijesti', 'novih vijesti')}`}</b>${tag(first.club)} ${esc(cleanTitle(first.title))}`, 'Pogledaj', () => setTab('vijesti'));
+  }
+  $('#toast-open').addEventListener('click', () => { $('#toast').hidden = true; if (toastAction) toastAction(); });
+  $('#toast-close').addEventListener('click', () => { $('#toast').hidden = true; });
+
+  // ---- Android aplikacija
+  function nstate() { if (!NATIVE) return null; try { return JSON.parse(NATIVE.state()); } catch (e) { return null; } }
+  function nativeCall(fn, ...args) { if (!NATIVE || typeof NATIVE[fn] !== 'function') return null; try { return NATIVE[fn](...args); } catch (e) { return null; } }
+  S.native = nstate();
+
+  // ---- podaci sa GitHuba (uz keš za rad bez interneta)
+  let loading = null, lastLoad = 0, lastRaw = '', known = null;
+  function getText(u, ms) {
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    const timer = setTimeout(() => { if (ctl) ctl.abort(); }, ms || 12000);
+    const url = u + (u.includes('?') ? '&' : '?') + 't=' + Math.floor(Date.now() / 30000);
+    return fetch(url, { cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .finally(() => clearTimeout(timer));
+  }
+  function apply(d, a, fromCache) {
+    if (!d || typeof d !== 'object' || !Array.isArray(d.news) || !Array.isArray(d.matches)) return false;
+    const news = d.news.filter((n) => n && typeof n === 'object' && n.id);
+    if (known && !fromCache) {
+      const fresh = news.filter((n) => !known.has(n.id) && (Date.parse(n.added || '') || 0) > Date.now() - 6 * 3600e3);
+      if (fresh.length) newsToast(fresh);
+    }
+    known = new Set(news.map((n) => n.id));
+    S.news = news;
+    S.matches = d.matches.filter((m) => m && typeof m === 'object' && m.id);
+    S.standings = d.standings && typeof d.standings === 'object' ? d.standings : {};
+    S.meta = d.meta && typeof d.meta === 'object' ? d.meta : null;
+    if (a && typeof a === 'object') S.app = a;
+    S.ready.news = S.ready.matches = S.ready.standings = S.ready.meta = true;
+    return true;
+  }
+  function load() {
+    if (loading) return loading;
+    const before = S.db;
+    let changed = false;
+    S.busy = true; renderChrome();
+    loading = Promise.all([getText(DATA_URL), getText(APP_URL).catch(() => null)])
+      .then(([rawData, rawApp]) => {
+        const raw = rawData + '\n' + (rawApp || '');
+        if (raw !== lastRaw) {
+          const d = JSON.parse(rawData);
+          let a = null; try { a = rawApp ? JSON.parse(rawApp) : null; } catch (e) { a = null; }
+          if (!apply(d, a, false)) throw new Error('neispravni podaci');
+          lastRaw = raw; changed = true;
+          lsSet('vs:cache', { d, a: a || S.app, at: Date.now() });
+        }
+        S.db = 'ok'; S.err = null; S.fetchedAt = Date.now();
+      })
+      .catch((e) => {
+        S.err = e;
+        if (S.db === 'wait') S.db = 'none';
+        else if (S.db === 'ok') S.db = 'cache';
+      })
+      .finally(() => {
+        loading = null; S.busy = false; lastLoad = Date.now();
+        if (changed || before !== S.db || S.tab === 'postavke') render(); else renderChrome();
+      });
+    return loading;
+  }
+
+  // ---- događaji
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-tab]'); if (t) { setTab(t.dataset.tab); return; }
+    const g = e.target.closest('[data-go]'); if (g) { setTab(g.dataset.go); return; }
+    const c = e.target.closest('.controls [data-club]'); if (c) { S.club = c.dataset.club; lsSet('vs:club', S.club); render(); return; }
+    const s = e.target.closest('[data-sub]'); if (s) { S.sub = s.dataset.sub; lsSet('vs:sub', S.sub); render(); return; }
+    if (e.target.closest('#mark-read')) { S.seenAt = Date.now(); lsSet('vs:seenAt', S.seenAt); render(); return; }
+    if (e.target.closest('#open-settings')) { setTab(S.tab === 'postavke' ? 'pregled' : 'postavke'); return; }
+    if (e.target.closest('#refresh')) { load(); return; }
+    const act = e.target.closest('[data-act]'); if (!act) return;
+    const what = act.dataset.act;
+    if (what === 'retry') load();
+    else if (what === 'nudge-off') { lsSet('vs:nudge-off', true); render(); }
+    else if (what === 'notif') { nativeCall('requestNotifications'); }
+    else if (what === 'battery') { nativeCall('battery'); }
+    else if (what === 'test') { const r = nativeCall('test'); toast(r === 'ok' ? '<b>Poslano.</b> Probna obavijest je na putu.' : '<b>Nije poslano.</b> Obavijesti su isključene u postavkama telefona.', null, null, 6000); }
+    else if (what === 'check') { nativeCall('checkNow'); toast('<b>Provjeravam…</b> Javit ću kad završim.', null, null, 20000); }
+  });
+  document.addEventListener('change', (e) => {
+    const el = e.target.closest('[data-set]'); if (!el || !NATIVE) return;
+    const v = el.type === 'checkbox' ? String(el.checked) : el.value;
+    const r = nativeCall('set', el.dataset.set, v);
+    let st = null; try { st = r ? JSON.parse(r) : null; } catch (err) { st = null; }
+    S.native = st || nstate(); render();
+  });
+  $('#view').addEventListener('toggle', (e) => {
+    const d = e.target; if (!(d instanceof HTMLDetailsElement) || !d.dataset.id) return;
+    if (d.open) S.open.add(d.dataset.id); else S.open.delete(d.dataset.id);
+  }, true);
+  window.addEventListener('hashchange', () => { const h = (location.hash || '').slice(1); setTab(TABS.includes(h) ? h : 'pregled'); });
+  const persistSeen = () => lsSet('vs:seenAt', Date.now());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { persistSeen(); return; }
+    S.native = nstate();
+    if (Date.now() - lastLoad > 60e3) load(); else render();
+  });
+  window.addEventListener('pagehide', persistSeen);
+  setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    if (Date.now() - lastLoad > 5 * 60e3) { load(); return; }
+    if (S.tab === 'pregled') render(); else renderChrome();
+  }, 20000);
+
+  // Android aplikacija poziva ove funkcije (window.VS)
+  window.VS = {
+    refresh(why) { S.native = nstate(); if (why === 'resume' && Date.now() - lastLoad < 60e3) { render(); return; } load(); },
+    go(t) { setTab(TABS.includes(t) ? t : 'pregled'); },
+    back() { if (S.tab !== 'pregled') { setTab('pregled'); return true; } return false; },
+    native() { S.native = nstate(); render(); },
+    checked(msg) { S.native = nstate(); load(); if (msg) toast(`<b>Provjereno.</b> ${esc(msg)}`, null, null, 8000); }
+  };
+
+  // ---- start: prvo sačuvani podaci (odmah), pa svježi sa GitHuba
+  const cached = lsGet('vs:cache');
+  if (cached && apply(cached.d, cached.a, true)) { S.db = 'cache'; S.fetchedAt = cached.at || 0; }
+  load();
+  render();
+  nativeCall('ready', String(WEB_VERSION));
+})();
+</script>
+</body>
+</html>

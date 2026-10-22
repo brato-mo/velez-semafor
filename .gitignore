@@ -1,0 +1,17 @@
+# Android build output
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+# copied from docs/index.html at build time
+android/app/src/main/assets/
+*.apk
+*.aab
+
+# Python / tests
+__pycache__/
+*.pyc
+shots/
+
+.DS_Store

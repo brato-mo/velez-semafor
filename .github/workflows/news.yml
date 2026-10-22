@@ -1,0 +1,46 @@
+name: Vijesti sa fkvelez.ba
+
+on:
+  schedule:
+    - cron: '7,27,47 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add new official posts
+        run: python3 tools/fetch_fkvelez.py --msg-file "$RUNNER_TEMP/msg.txt"
+
+      - name: Commit and push
+        run: |
+          if git diff --quiet -- docs/data/velez.json; then
+            echo "Nema promjena."
+            exit 0
+          fi
+          git config user.name "velez-semafor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/velez.json
+          git commit -q -F "$RUNNER_TEMP/msg.txt"
+          for i in 1 2 3 4; do
+            if git push -q origin HEAD:main; then exit 0; fi
+            # someone else pushed first: start again from the newest data and redo the merge
+            git fetch -q origin main
+            git reset -q --hard origin/main
+            python3 tools/fetch_fkvelez.py --msg-file "$RUNNER_TEMP/msg.txt"
+            if git diff --quiet -- docs/data/velez.json; then exit 0; fi
+            git add docs/data/velez.json
+            git commit -q -F "$RUNNER_TEMP/msg.txt"
+            sleep $((i * 5))
+          done
+          exit 1

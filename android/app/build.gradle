@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'io.github.bratomo.velez'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'io.github.bratomo.velez'
+        minSdk 24
+        targetSdk 35
+        // Bump both for every new APK. The app compares versionCode with docs/data/app.json
+        // and offers the download when a newer APK is published.
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        release {
+            // The PKCS12 keystore in the repo (android/velez-release.p12) is protected by a
+            // password that only GitHub Actions knows (secret VELEZ_KEYSTORE_PASSWORD).
+            def ks = System.getenv('VELEZ_KEYSTORE')
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('VELEZ_KEYSTORE_PASSWORD')
+                keyAlias 'velez'
+                keyPassword System.getenv('VELEZ_KEYSTORE_PASSWORD')
+                storeType 'pkcs12'
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}

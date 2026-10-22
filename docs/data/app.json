@@ -1,0 +1,22 @@
+{
+ "web": 2026102201,
+ "apk": {
+  "versionCode": 1,
+  "versionName": "1.0",
+  "url": "https://github.com/brato-mo/velez-semafor/releases/latest/download/velez-semafor.apk",
+  "page": "https://github.com/brato-mo/velez-semafor/releases/latest",
+  "note": ""
+ },
+ "changelog": [
+  {
+   "date": "2026-10-22",
+   "version": "1.0",
+   "title": "Prva Android verzija",
+   "items": [
+    "Aplikacija za telefon sa vijestima, rasporedom, rezultatima i tabelama za FK Velež i RK Velež.",
+    "Obavijesti na telefonu: nove vijesti, rezultati sa strijelcima, podsjetnik pred utakmicu i jutarnji pregled u 7:00.",
+    "Vijesti i izgled stižu sa GitHuba pri svakom otvaranju, bez ponovne instalacije. Bez interneta se prikazuju zadnji sačuvani podaci."
+   ]
+  }
+ ]
+}
