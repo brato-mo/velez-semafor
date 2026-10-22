@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="velez-app" content="1">
-<meta name="velez-version" content="2026102302">
+<meta name="velez-version" content="2026102303">
 <title>Velež Semafor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -299,7 +299,7 @@ select.time:disabled{opacity:.5}
   </div>
 </main>
 <footer class="wrap foot">
-  <p>Neslužbena navijačka aplikacija za FK Velež i RK Velež. Podatke iz javnih izvora (fkvelez.ba, rk-velez.com, nfsbih.ba, svijet-rukometa.com, sportdc.net, klix.ba) skuplja Claude: provjera svaki sat i jutarnji pregled u 7:00.</p>
+  <p>Neslužbena navijačka aplikacija za FK Velež i RK Velež. Podatke iz javnih izvora (fkvelez.ba, rk-velez.com, nfsbih.ba, svijet-rukometa.com, sportdc.net, klix.ba) skupljaju se automatski: provjera svaki sat i jutarnji pregled u 7:00.</p>
   <p id="foot-change"></p>
   <p><a href="https://github.com/brato-mo/velez-semafor" target="_blank" rel="noopener noreferrer">github.com/brato-mo/velez-semafor</a></p>
 </footer>
@@ -662,7 +662,7 @@ select.time:disabled{opacity:.5}
     h += `<h3 class="club-h">O aplikaciji</h3><ul class="card">`;
     h += `<li class="set-row"><span class="sl"><b>Verzija</b><span>${n ? `Aplikacija ${esc(n.versionName || '')} · ` : ''}izgled od ${esc(verLabel(WEB_VERSION))}</span></span></li>`;
     h += `<li class="set-row"><span class="sl"><b>Podaci</b><span>${S.meta && S.meta.lastCheck ? `Zadnja provjera izvora ${esc(ago(S.meta.lastCheck))}` : 'Još nema provjere'}${S.fetchedAt ? ` · preuzeto na telefon ${esc(ago(S.fetchedAt))}` : ''}</span></span></li>`;
-    h += `<li class="set-row"><span class="sl"><b>Izvorni kod i preuzimanje</b><span>github.com/brato-mo/velez-semafor</span></span><a class="ghost-btn" href="${REPO}" target="_blank" rel="noopener noreferrer">Otvori ↗</a></li>`;
+    h += `<li class="set-row"><span class="sl"><b>Preuzimanje aplikacije</b><span>github.com/brato-mo/velez-semafor</span></span><a class="ghost-btn" href="${REPO}" target="_blank" rel="noopener noreferrer">Otvori ↗</a></li>`;
     h += `</ul>`;
     const log = Array.isArray(a.changelog) ? a.changelog.slice(0, 20) : [];
     h += `<div class="sec-row"><h2 class="sec">Šta je novo</h2></div>`;
