@@ -2,11 +2,22 @@
  "schema": 1,
  "meta": {
   "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-10-22T10:48:28Z",
-  "lastChangeText": "Početno punjenje: vijesti, raspored, rezultati i tabele.",
-  "lastCheck": "2026-10-23T12:08:37Z"
+  "lastChange": "2026-10-23T17:19:04Z",
+  "lastChangeText": "Nova vijest: IZVJEŠTAJ: Slavlje Kadeta, poraz Pionirske selekcije",
+  "lastCheck": "2026-10-23T17:19:04Z"
  },
  "news": [
+  {
+   "id": "fkvelez-izvjestaj-slavlje-kadeta-poraz-pionirske-selekcije",
+   "club": "fk",
+   "kind": "omladinci",
+   "date": "2026-10-23",
+   "title": "IZVJEŠTAJ: Slavlje Kadeta, poraz Pionirske selekcije",
+   "summary": "",
+   "url": "https://fkvelez.ba/izvjestaj-slavlje-kadeta-poraz-pionirske-selekcije/",
+   "source": "fkvelez.ba",
+   "added": "2026-10-23T17:19:04Z"
+  },
   {
    "id": "svijetrukometa-gracanica-savladala-velez-i-upisala-prve-ovosezonske-bodove",
    "added": "2026-10-21T20:30:00Z",
