@@ -88,7 +88,9 @@ public class MainActivity extends Activity {
                 if (!request.isForMainFrame()) return false;
                 Uri u = request.getUrl();
                 String scheme = u.getScheme() == null ? "" : u.getScheme().toLowerCase(Locale.ROOT);
-                if (scheme.equals("http") || scheme.equals("https")) {
+                if ((scheme.equals("http") || scheme.equals("https")) && u.getPath() != null && u.getPath().toLowerCase(Locale.ROOT).endsWith(".apk")) {
+                    openExternal(u); // the new app version is downloaded by the phone's browser
+                } else if (scheme.equals("http") || scheme.equals("https")) {
                     // news and other web links open inside the app, in ArticleActivity (no app bridge there)
                     Intent a = new Intent(MainActivity.this, ArticleActivity.class);
                     a.putExtra(ArticleActivity.EXTRA_URL, u.toString());

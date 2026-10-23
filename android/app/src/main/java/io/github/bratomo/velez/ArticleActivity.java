@@ -72,7 +72,8 @@ public class ArticleActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri u = request.getUrl();
                 String scheme = u.getScheme() == null ? "" : u.getScheme().toLowerCase(Locale.ROOT);
-                if (scheme.equals("http") || scheme.equals("https")) return false;
+                boolean apk = u.getPath() != null && u.getPath().toLowerCase(Locale.ROOT).endsWith(".apk");
+                if ((scheme.equals("http") || scheme.equals("https")) && !apk) return false;
                 // mailto:, tel: and other apps: hand them to the phone
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, u));

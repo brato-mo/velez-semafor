@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="velez-app" content="1">
-<meta name="velez-version" content="2026102305">
+<meta name="velez-version" content="2026102306">
 <title>Velež Semafor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -225,6 +225,10 @@ tr.me td.pos{box-shadow:inset 3px 0 0 var(--red);color:var(--red)}
 .notice{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14.5px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
 .notice>span{flex:1 1 240px;min-width:0}
 .notice b{color:var(--ink)}
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:50}
+.modal{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:380px;width:100%;box-sizing:border-box}
+.modal-t{margin:0 0 8px;font-size:18px}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .banner{margin-top:14px;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;background:var(--board);color:var(--board-ink);border:1px solid var(--board-line);border-radius:12px;padding:12px 14px;font-size:14px}
 .banner>span{flex:1 1 220px;min-width:0}
 .banner b{color:var(--led)}
@@ -545,6 +549,20 @@ select.time:disabled{opacity:.5}
   const loadingRow = () => emptyRow('Učitavam…');
 
   // ---- obavještenja unutar aplikacije
+  // Opens once per session when a newer version is published: offers the download right away.
+  function showUpdateDialog() {
+    const n = S.native, apk = S.app && S.app.apk;
+    if (!n || !apk || !(Number(apk.versionCode) > Number(n.versionCode || 0))) return;
+    const key = 'vs:upd:' + apk.versionCode;
+    try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) { /* bez pohrane */ }
+    if (document.querySelector('.modal-wrap')) return;
+    const url = safeUrl(apk.url);
+    const box = document.createElement('div');
+    box.className = 'modal-wrap';
+    box.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="upd-t"><h2 id="upd-t" class="modal-t">Nova verzija ${esc(apk.versionName || '')}</h2><p>Dostupna je nova verzija aplikacije. Preuzmi je i instaliraj preko postojeće, podaci ostaju.</p>${apk.note ? `<p class="foot-note">${esc(apk.note)}</p>` : ''}<div class="modal-actions">${url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Preuzmi i instaliraj</a>` : ''}<button class="ghost-btn" type="button" data-close>Kasnije</button></div></div>`;
+    box.addEventListener('click', (e) => { if (e.target === box || e.target.closest('[data-close]') || e.target.closest('a')) box.remove(); });
+    document.body.appendChild(box);
+  }
   function updateBanner() {
     const n = S.native, apk = S.app && S.app.apk;
     if (!n || !apk || !(Number(apk.versionCode) > Number(n.versionCode || 0))) return '';
@@ -823,6 +841,7 @@ select.time:disabled{opacity:.5}
       .finally(() => {
         loading = null; S.busy = false; lastLoad = Date.now();
         if (changed || before !== S.db || S.tab === 'postavke') render(); else renderChrome();
+        showUpdateDialog();
       });
     return loading;
   }
