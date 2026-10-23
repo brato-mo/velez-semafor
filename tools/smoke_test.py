@@ -23,7 +23,7 @@ DOCS = os.path.join(ROOT, "docs")
 
 FAKE_BRIDGE = """
 (() => {
-  const st = { versionCode: 1, versionName: '1.0', sdk: 35, notif: 'off', battery: 'limited',
+  const st = { versionCode: 99, versionName: '1.3', sdk: 35, notif: 'off', battery: 'limited',
                lastBg: new Date(Date.now() - 20 * 60e3).toISOString(), lastBgText: 'nema novih vijesti',
                s: { news: true, results: true, reminder: true, morning: true, morningTime: '07:00' } };
   window.__calls = [];
