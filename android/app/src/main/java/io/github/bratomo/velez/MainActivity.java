@@ -2,6 +2,11 @@ package io.github.bratomo.velez;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.os.Environment;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -58,10 +63,23 @@ public class MainActivity extends Activity {
     private boolean pageReady;
     private String pendingTab;
     private long lastPageFetch;
+    /** Id of the app-update download this app started (kept in Prefs so it survives restarts). */
+    private static final String PREF_APK = "apkDownload";
+    private final BroadcastReceiver downloadDone = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context ctx, Intent i) {
+            long id = i.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            if (id < 0 || id != Prefs.get(MainActivity.this).getLong(PREF_APK, -1)) return;
+            installDownloaded(id);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        IntentFilter done = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        if (Build.VERSION.SDK_INT >= 33) registerReceiver(downloadDone, done, Context.RECEIVER_EXPORTED);
+        else registerReceiver(downloadDone, done);
         int bg = getColor(R.color.bg);
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(bg);
@@ -89,7 +107,7 @@ public class MainActivity extends Activity {
                 Uri u = request.getUrl();
                 String scheme = u.getScheme() == null ? "" : u.getScheme().toLowerCase(Locale.ROOT);
                 if ((scheme.equals("http") || scheme.equals("https")) && u.getPath() != null && u.getPath().toLowerCase(Locale.ROOT).endsWith(".apk")) {
-                    openExternal(u); // the new app version is downloaded by the phone's browser
+                    startApkDownload(u); // the new app version is downloaded inside the app
                 } else if (scheme.equals("http") || scheme.equals("https")) {
                     // news and other web links open inside the app, in ArticleActivity (no app bridge there)
                     Intent a = new Intent(MainActivity.this, ArticleActivity.class);
@@ -295,6 +313,50 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Downloads the new app version inside the app (Android DownloadManager), then offers to install it. */
+    private void startApkDownload(Uri uri) {
+        DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        if (dm == null) { openExternal(uri); return; }
+        try {
+            DownloadManager.Request r = new DownloadManager.Request(uri)
+                    .setTitle("Velež Semafor")
+                    .setDescription("Nova verzija aplikacije")
+                    .setMimeType("application/vnd.android.package-archive")
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, "velez-semafor-update.apk");
+            long id = dm.enqueue(r);
+            Prefs.get(this).edit().putLong(PREF_APK, id).apply();
+            toast("Preuzimanje je počelo. Kad završi, aplikacija će te pitati za instalaciju.");
+        } catch (RuntimeException e) {
+            toast("Preuzimanje nije uspjelo. Provjeri internet pa pokušaj ponovo.");
+        }
+    }
+
+    /** Opens the Android installer for the downloaded file (the user confirms the install). */
+    private void installDownloaded(long id) {
+        DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        if (dm == null) return;
+        Uri file = dm.getUriForDownloadedFile(id);
+        if (file == null) { toast("Preuzeta datoteka nije pronađena. Pokušaj preuzimanje ponovo."); return; }
+        if (Build.VERSION.SDK_INT >= 26 && !getPackageManager().canRequestPackageInstalls()) {
+            toast("Dozvoli instalaciju iz ove aplikacije, pa ponovo pritisni Preuzmi.");
+            try {
+                startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName())));
+            } catch (ActivityNotFoundException ignored) {
+                // nothing to open on this phone
+            }
+            return;
+        }
+        Intent install = new Intent(Intent.ACTION_VIEW)
+                .setDataAndType(file, "application/vnd.android.package-archive")
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(install);
+        } catch (ActivityNotFoundException e) {
+            toast("Ne mogu pokrenuti instalaciju na ovom telefonu.");
+        }
+    }
+
     private void toast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
@@ -376,6 +438,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        try { unregisterReceiver(downloadDone); } catch (IllegalArgumentException ignored) { /* not registered */ }
         ui.removeCallbacksAndMessages(null);
         if (web != null) {
             web.removeJavascriptInterface("VelezApp");
