@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="velez-app" content="1">
-<meta name="velez-version" content="2026102304">
+<meta name="velez-version" content="2026102305">
 <title>Velež Semafor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -571,15 +571,18 @@ select.time:disabled{opacity:.5}
     h += `<ul class="card">${S.ready.news ? (latest.map((n) => newsItem(n, true)).join('') || emptyRow('Još nema vijesti.')) : loadingRow()}</ul>`;
     return h;
   }
+  let newsAll = false;
   function viewNews() {
     const list = newsFor(clubsOn());
     const fresh = list.filter(isNew).length;
     let h = `<div class="sec-row"><h2 class="sec">Vijesti</h2>${fresh ? `<button class="ghost-btn" type="button" id="mark-read">Označi kao pročitano (${fresh})</button>` : ''}</div>`;
     if (!S.ready.news) return h + `<ul class="card">${loadingRow()}</ul>`;
     if (!list.length) return h + `<ul class="card">${emptyRow('Još nema vijesti za odabrani klub.')}</ul>`;
+    const shown = newsAll ? list : list.slice(0, 12);
     const groups = new Map();
-    for (const n of list) { const k = n.date || ''; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(n); }
+    for (const n of shown) { const k = n.date || ''; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(n); }
     for (const [d, items] of groups) h += `<h3 class="day-h">${esc(relDay(d) || dayLong(d) || 'Bez datuma')}</h3><ul class="card">${items.map((n) => newsItem(n, false)).join('')}</ul>`;
+    if (!newsAll && list.length > shown.length) h += `<p class="foot-note"><button class="ghost-btn" type="button" id="more-news">Prikaži sve vijesti (${list.length})</button></p>`;
     return h;
   }
   // Season scorers for Velež: FK from per-goal lists, RK from per-match top scorers (partial data).
@@ -764,13 +767,20 @@ select.time:disabled{opacity:.5}
 
   // ---- podaci sa GitHuba (uz keš za rad bez interneta)
   let loading = null, lastLoad = 0, lastRaw = '', known = null;
-  function getText(u, ms) {
+  function getOnce(u, ms) {
     const ctl = typeof AbortController === 'function' ? new AbortController() : null;
-    const timer = setTimeout(() => { if (ctl) ctl.abort(); }, ms || 12000);
+    const timer = setTimeout(() => { if (ctl) ctl.abort(); }, ms);
     const url = u + (u.includes('?') ? '&' : '?') + 't=' + Math.floor(Date.now() / 30000);
     return fetch(url, { cache: 'no-store', signal: ctl ? ctl.signal : undefined })
       .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
       .finally(() => clearTimeout(timer));
+  }
+  // Slow phone connections: wait longer, and retry once only after a timeout (no retry when offline).
+  function getText(u) {
+    return getOnce(u, 20000).catch((e) => {
+      if (!e || e.name !== 'AbortError') throw e;
+      return getOnce(u, 20000);
+    });
   }
   function apply(d, a, fromCache) {
     if (!d || typeof d !== 'object' || !Array.isArray(d.news) || !Array.isArray(d.matches)) return false;
@@ -823,6 +833,7 @@ select.time:disabled{opacity:.5}
     const g = e.target.closest('[data-go]'); if (g) { setTab(g.dataset.go); return; }
     const c = e.target.closest('.controls [data-club]'); if (c) { S.club = c.dataset.club; lsSet('vs:club', S.club); render(); return; }
     const s = e.target.closest('[data-sub]'); if (s) { S.sub = s.dataset.sub; lsSet('vs:sub', S.sub); render(); return; }
+    if (e.target.closest('#more-news')) { newsAll = true; render(); return; }
     if (e.target.closest('#mark-read')) { S.seenAt = Date.now(); lsSet('vs:seenAt', S.seenAt); render(); return; }
     if (e.target.closest('#open-settings')) { setTab(S.tab === 'postavke' ? 'pregled' : 'postavke'); return; }
     if (e.target.closest('#refresh')) { load(); return; }
