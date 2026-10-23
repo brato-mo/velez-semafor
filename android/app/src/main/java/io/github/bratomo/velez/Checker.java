@@ -49,6 +49,7 @@ final class Checker {
     static synchronized String check(Context ctx) {
         Context c = ctx.getApplicationContext();
         long now = System.currentTimeMillis();
+        int site = FkNews.check(c, now); // straight from fkvelez.ba: no waiting for GitHub
         JSONObject d = fetch(c, false);
         SharedPreferences.Editor e = Prefs.get(c).edit().putString("lastBg", Data.iso(now));
         if (d == null) {
@@ -62,6 +63,7 @@ final class Checker {
         reminderCheck(c, matches, now);
         String txt = n == 0 ? "nema novih vijesti" : n + " " + Data.plural(n, "nova vijest", "nove vijesti", "novih vijesti");
         if (r > 0) txt += ", " + r + " " + Data.plural(r, "novi rezultat", "nova rezultata", "novih rezultata");
+        if (site > 0 && n == 0) txt = site + " " + Data.plural(site, "nova vijest", "nove vijesti", "novih vijesti") + " sa fkvelez.ba";
         e.putString("lastBgText", txt).apply();
         return Data.capital(txt) + ".";
     }
@@ -80,6 +82,8 @@ final class Checker {
             if (added > 0 && added < now - 3 * Data.DAY) continue; // old item filled in later: no alert
             fresh.add(n);
         }
+        // keep the ids announced directly from fkvelez.ba too, so the same article is not announced again
+        if (seen != null) all.addAll(seen);
         Prefs.putSet(c, "seenNews", all);
         if (fresh.isEmpty() || !Prefs.news(c)) return fresh.size();
         Collections.sort(fresh, (a, b) -> Data.s(b, "added").compareTo(Data.s(a, "added")));

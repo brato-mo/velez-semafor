@@ -1,13 +1,22 @@
 {
  "web": 2026102201,
  "apk": {
-  "versionCode": 2,
-  "versionName": "1.1",
+  "versionCode": 3,
+  "versionName": "1.2",
   "url": "https://github.com/brato-mo/velez-semafor/releases/latest/download/velez-semafor.apk",
   "page": "https://github.com/brato-mo/velez-semafor/releases/latest",
   "note": ""
  },
  "changelog": [
+  {
+   "date": "2026-10-23",
+   "version": "1.2",
+   "title": "Obavijesti odmah",
+   "items": [
+    "Aplikacija sama provjerava fkvelez.ba svakih 15 minuta i javi čim se objavi nova vijest.",
+    "Ista vijest se ne javlja dvaput, ni kad stigne preko podataka sa GitHuba."
+   ]
+  },
   {
    "date": "2026-10-23",
    "version": "1.1",

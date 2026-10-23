@@ -11,11 +11,12 @@ import android.os.Build;
 
 import java.util.Calendar;
 
-/** Hourly background check (JobScheduler) and the morning alarm (AlarmManager). */
+/** Background check every 15 minutes (JobScheduler) and the morning alarm (AlarmManager). */
 final class Scheduler {
     private Scheduler() {}
 
-    static final int JOB_ID = 4201;
+    static final int JOB_ID = 4202;
+    static final int OLD_JOB_ID = 4201; // hourly version, removed when the app updates
 
     static void ensure(Context c) {
         Notifier.channels(c);
@@ -27,10 +28,11 @@ final class Scheduler {
         Context c = ctx.getApplicationContext();
         JobScheduler js = (JobScheduler) c.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         if (js == null) return;
+        js.cancel(OLD_JOB_ID);
         if (js.getPendingJob(JOB_ID) != null) return; // keep the running schedule
         JobInfo job = new JobInfo.Builder(JOB_ID, new ComponentName(c, CheckJob.class))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(60 * 60 * 1000L, 20 * 60 * 1000L)
+                .setPeriodic(15 * 60 * 1000L, 5 * 60 * 1000L)
                 .setPersisted(true)
                 .build();
         try {
