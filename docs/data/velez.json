@@ -2,11 +2,22 @@
  "schema": 1,
  "meta": {
   "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-10-23T17:19:04Z",
-  "lastChangeText": "Nova vijest: IZVJEŠTAJ: Slavlje Kadeta, poraz Pionirske selekcije",
-  "lastCheck": "2026-10-24T07:11:20Z"
+  "lastChange": "2026-10-24T12:06:22Z",
+  "lastChangeText": "Nova vijest: NAJAVA: Pred Rođenima imperativ osvajanja tri boda",
+  "lastCheck": "2026-10-24T12:06:22Z"
  },
  "news": [
+  {
+   "id": "fkvelez-najava-pred-rodjenima-imperativ-osvajanja-tri-boda",
+   "club": "fk",
+   "kind": "najava",
+   "date": "2026-10-24",
+   "title": "NAJAVA: Pred Rođenima imperativ osvajanja tri boda",
+   "summary": "",
+   "url": "https://fkvelez.ba/najava-pred-rodjenima-imperativ-osvajanja-tri-boda/",
+   "source": "fkvelez.ba",
+   "added": "2026-10-24T12:06:22Z"
+  },
   {
    "id": "fkvelez-izvjestaj-slavlje-kadeta-poraz-pionirske-selekcije",
    "club": "fk",
