@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "meta": {
-  "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-10-24T12:06:22Z",
-  "lastChangeText": "Nova vijest: NAJAVA: Pred Rođenima imperativ osvajanja tri boda",
-  "lastCheck": "2026-10-25T06:28:54Z"
+  "by": "jutarnji pregled",
+  "lastChange": "2026-10-25T09:38:01Z",
+  "lastChangeText": "Rukomet: Velež – Krivaja 25:29",
+  "lastCheck": "2026-10-25T09:38:01Z"
  },
  "news": [
   {
@@ -1198,21 +1198,43 @@
    "club": "rk",
    "comp": "Premijer liga BiH",
    "confirmed": false,
-   "date": null,
+   "date": "2026-10-24",
    "goals": [],
    "home": "Velež",
-   "ht": null,
+   "ht": {
+    "h": 11,
+    "a": 14
+   },
    "note": "Par po rasporedu lige. Datum i satnica još nisu objavljeni.",
-   "report": "",
+   "report": "https://www.svijet-rukometa.com/zavidovicani-konacno-docekali-slavlje-krivaja-bolja-od-veleza-na-gostovanju/",
    "round": 4,
-   "score": null,
-   "source": "https://www.glassrpske.com/lat/sport/sp-ostali-sportovi/napokon-poznat-raspored-lige-za-rukometase/654976",
+   "score": {
+    "h": 25,
+    "a": 29
+   },
+   "source": "https://www.svijet-rukometa.com/zavidovicani-konacno-docekali-slavlje-krivaja-bolja-od-veleza-na-gostovanju/",
    "stage": "4. kolo",
-   "status": "zakazano",
+   "status": "odigrano",
    "time": "",
-   "top": [],
+   "top": [
+    {
+     "n": "Bogdanić",
+     "g": 10,
+     "t": "h"
+    },
+    {
+     "n": "Mrda",
+     "g": 10,
+     "t": "a"
+    },
+    {
+     "n": "Herić",
+     "g": 6,
+     "t": "a"
+    }
+   ],
    "tv": "",
-   "updated": "2026-10-22T10:48:28Z",
+   "updated": "2026-10-25T09:40:00Z",
    "velez": "home",
    "venue": "Dvorana „Midhat Hujdur Hujka“, Mostar",
    "window": ""
