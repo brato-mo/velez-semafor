@@ -2,11 +2,22 @@
  "schema": 1,
  "meta": {
   "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-10-25T09:38:01Z",
-  "lastChangeText": "Rukomet: Velež – Krivaja 25:29",
-  "lastCheck": "2026-10-26T07:02:21Z"
+  "lastChange": "2026-10-26T14:07:58Z",
+  "lastChangeText": "Nova vijest: IZVJEŠTAJ: Šokantna utakmica na stadionu Rođeni",
+  "lastCheck": "2026-10-26T14:07:58Z"
  },
  "news": [
+  {
+   "id": "fkvelez-izvjestaj-sokantna-utakmica-na-stadionu-rodjeni",
+   "club": "fk",
+   "kind": "izvještaj",
+   "date": "2026-10-26",
+   "title": "IZVJEŠTAJ: Šokantna utakmica na stadionu Rođeni",
+   "summary": "",
+   "url": "https://fkvelez.ba/izvjestaj-sokantna-utakmica-na-stadionu-rodjeni/",
+   "source": "fkvelez.ba",
+   "added": "2026-10-26T14:07:58Z"
+  },
   {
    "id": "fkvelez-najava-pred-rodjenima-imperativ-osvajanja-tri-boda",
    "club": "fk",
