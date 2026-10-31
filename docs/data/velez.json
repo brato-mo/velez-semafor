@@ -2,11 +2,22 @@
  "schema": 1,
  "meta": {
   "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-10-28T20:57:39Z",
-  "lastChangeText": "Nova vijest: IZVJEŠTAJ: Porazom od Zvijezde Rođeni se oprostili od Kupa BiH",
-  "lastCheck": "2026-10-31T12:51:55Z"
+  "lastChange": "2026-10-31T17:38:31Z",
+  "lastChangeText": "Nova vijest: NAJAVA: Rođeni u Doboju traže izlaz iz rezultatske krize",
+  "lastCheck": "2026-10-31T17:38:31Z"
  },
  "news": [
+  {
+   "id": "fkvelez-najava-rodjeni-u-doboju-traze-izlaz-iz-rezultatske-krize",
+   "club": "fk",
+   "kind": "najava",
+   "date": "2026-10-31",
+   "title": "NAJAVA: Rođeni u Doboju traže izlaz iz rezultatske krize",
+   "summary": "",
+   "url": "https://fkvelez.ba/najava-rodjeni-u-doboju-traze-izlaz-iz-rezultatske-krize/",
+   "source": "fkvelez.ba",
+   "added": "2026-10-31T17:38:31Z"
+  },
   {
    "id": "fkvelez-izvjestaj-porazom-od-zvijezde-rodjeni-se-oprostili-od-kupa-bih",
    "club": "fk",
