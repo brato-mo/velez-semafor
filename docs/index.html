@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="velez-app" content="1">
-<meta name="velez-version" content="2026102306">
+<meta name="velez-version" content="2026110701">
 <title>Velež Semafor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -467,6 +467,14 @@ select.time:disabled{opacity:.5}
     return `<article class="panel" aria-label="${esc(CLUBS[c].full)}: sljedeća utakmica">${m ? board(c, m) : boardEmpty(c)}${strip(c)}</article>`;
   }
 
+  // Earlier results this season against the same opponent (most recent first)
+  function h2hRows(m) {
+    const opp = m.velez === 'home' ? m.away : m.home;
+    return S.matches
+      .filter((x) => x.club === m.club && x.id !== m.id && x.status === 'odigrano' && x.score && (x.home === opp || x.away === opp))
+      .sort((a, b) => (kickoff(b) || 0) - (kickoff(a) || 0))
+      .slice(0, 2);
+  }
   function fxRow(m, showClub) {
     if (m.status === 'slobodno') {
       return `<li class="fx bye"><div class="fx-when"><b>${esc(m.stage)}</b><span>slobodno</span></div><div class="fx-main"><div class="fx-teams">${showClub ? tag(m.club) : ''}Velež je slobodan</div>${m.note ? `<div class="fx-sub">${esc(m.note)}</div>` : ''}</div></li>`;
@@ -494,7 +502,14 @@ select.time:disabled{opacity:.5}
       <div class="fx-teams">${showClub ? tag(m.club) : ''}${teamHtml(m.home, m.velez === 'home')}<span class="dash">–</span>${teamHtml(m.away, m.velez === 'away')}</div>
       <div class="fx-sub">${sub.filter(Boolean).map(esc).join(' · ')}</div>
       ${chips.length ? `<div class="fx-chips">${chips.join('')}</div>` : ''}
+      ${m.status === 'zakazano' || m.status === 'odgođeno' ? h2hLine(m) : ''}
     </div></li>`;
+  }
+  function h2hLine(m) {
+    const rows = h2hRows(m);
+    if (!rows.length) return '';
+    const txt = rows.map((x) => `${x.date ? esc(dayShort(x.date)) + ': ' : ''}${esc(x.home)} ${x.score.h}:${x.score.a} ${esc(x.away)}`).join(' · ');
+    return `<div class="fx-sub h2h">Ranije ove sezone: ${txt}</div>`;
   }
 
   function groupGoals(list) {

@@ -9,6 +9,14 @@
  },
  "changelog": [
   {
+   "date": "2026-11-07",
+   "version": "1.4",
+   "title": "Međusobni dueli",
+   "items": [
+    "Kod sljedeće utakmice piše ranije rezultate protiv istog protivnika iz ove sezone."
+   ]
+  },
+  {
    "date": "2026-10-23",
    "version": "1.4",
    "title": "Preuzimanje unutar aplikacije",

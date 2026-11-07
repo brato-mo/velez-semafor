@@ -10,7 +10,6 @@ traže novi APK, pa njih radi rjeđe i pažljivo.
 
 ## Lista
 
-- [ ] **Međusobni dueli**: kod sljedeće utakmice prikazati ranije rezultate protiv istog protivnika iz ove sezone (ako postoje u podacima).
 - [ ] **Pretraga vijesti**: polje za pretragu naslova i sažetaka u kartici Vijesti.
 - [ ] **Forma i statistika**: mali blok "Sezona u brojkama" (pobjede/neriješeno/porazi, golovi, domaćin/gost) za svaki klub.
 - [ ] **Omladinci odvojeno**: filter u Vijestima "Prvi tim / Omladinska škola".
@@ -19,6 +18,7 @@ traže novi APK, pa njih radi rjeđe i pažljivo.
 - [ ] **Uživo**: na dan utakmice češća provjera rezultata (svakih 15 min između početka i kraja) i obavijest za poluvrijeme i kraj.
 
 ## Urađeno
+- [x] 2026-11-07 · Međusobni dueli: kod sljedeće utakmice ranije rezultate protiv istog protivnika.
 
 - [x] 2026-10-22 · Strijelci sezone: u Rezultatima lista strijelaca FK Veleža (iz golova) i najefikasnijih RK Veleža (zbir iz izvještaja), sa trakama i napomenom koliko utakmica je obuhvaćeno.
 - [x] 2026-10-22 · Prva Android verzija (1.0): vijesti, raspored, rezultati, tabele, obavijesti, jutarnji pregled, rad bez interneta.
