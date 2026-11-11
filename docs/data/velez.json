@@ -2,11 +2,22 @@
  "schema": 1,
  "meta": {
   "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-11-07T19:29:52Z",
-  "lastChangeText": "Nova vijest: IZVJEŠTAJ: Bez pobjednika u duelu Veleža i Čelika",
-  "lastCheck": "2026-11-11T16:26:10Z"
+  "lastChange": "2026-11-11T22:54:41Z",
+  "lastChangeText": "Nova vijest: INTERVIEW: Veselin Đurasović: Moja odluka je bila da nikada ne napustim Velež",
+  "lastCheck": "2026-11-11T22:54:41Z"
  },
  "news": [
+  {
+   "id": "fkvelez-interview-veselin-djurasovic-moja-odluka-je-bila-da-nikada-ne-napustim-velez",
+   "club": "fk",
+   "kind": "klub",
+   "date": "2026-11-11",
+   "title": "INTERVIEW: Veselin Đurasović: Moja odluka je bila da nikada ne napustim Velež",
+   "summary": "",
+   "url": "https://fkvelez.ba/interview-veselin-djurasovic-moja-odluka-je-bila-da-nikada-ne-napustim-velez/",
+   "source": "fkvelez.ba",
+   "added": "2026-11-11T22:54:41Z"
+  },
   {
    "id": "fkvelez-izvjestaj-bez-pobjednika-u-duelu-veleza-i-celika",
    "club": "fk",
