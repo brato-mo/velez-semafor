@@ -2,11 +2,22 @@
  "schema": 1,
  "meta": {
   "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-11-20T11:21:29Z",
-  "lastChangeText": "Nova vijest: NAJAVA: Rođeni u Bijeljinu po bodove i prekid negativne tradicije",
-  "lastCheck": "2026-11-21T16:15:47Z"
+  "lastChange": "2026-11-21T21:43:47Z",
+  "lastChangeText": "Nova vijest: IZVJEŠTAJ: Rođeni u posljednjim sekundama ostali bez pobjede",
+  "lastCheck": "2026-11-21T21:43:47Z"
  },
  "news": [
+  {
+   "id": "fkvelez-izvjestaj-rodjeni-u-posljednjim-sekundama-ostali-bez-pobjede",
+   "club": "fk",
+   "kind": "izvještaj",
+   "date": "2026-11-21",
+   "title": "IZVJEŠTAJ: Rođeni u posljednjim sekundama ostali bez pobjede",
+   "summary": "",
+   "url": "https://fkvelez.ba/izvjestaj-rodjeni-u-posljednjim-sekundama-ostali-bez-pobjede/",
+   "source": "fkvelez.ba",
+   "added": "2026-11-21T21:43:47Z"
+  },
   {
    "id": "fkvelez-najava-rodjeni-u-bijeljinu-po-bodove-i-prekid-negativne-tradicije",
    "club": "fk",
