@@ -2,11 +2,22 @@
  "schema": 1,
  "meta": {
   "by": "automatska provjera (svakih 20 min)",
-  "lastChange": "2026-11-23T12:14:03Z",
-  "lastChangeText": "Nova vijest: SAOPŠTENJE: Fudbalski klub Velež poduzeo pravne korake povodom utakmice u Bijeljini",
-  "lastCheck": "2026-11-25T13:31:20Z"
+  "lastChange": "2026-11-25T22:47:31Z",
+  "lastChangeText": "Nova vijest: IZVJEŠTAJ: Porazi Pionirske i Kadetske selekcije",
+  "lastCheck": "2026-11-25T22:47:31Z"
  },
  "news": [
+  {
+   "id": "fkvelez-izvjestaj-porazi-pionirske-i-kadetske-selekcije",
+   "club": "fk",
+   "kind": "omladinci",
+   "date": "2026-11-25",
+   "title": "IZVJEŠTAJ: Porazi Pionirske i Kadetske selekcije",
+   "summary": "",
+   "url": "https://fkvelez.ba/izvjestaj-porazi-pionirske-i-kadetske-selekcije/",
+   "source": "fkvelez.ba",
+   "added": "2026-11-25T22:47:31Z"
+  },
   {
    "id": "fkvelez-saopstenje-fudbalski-klub-velez-poduzeo-pravne-korake-povodom-utakmice-u-bijeljini",
    "club": "fk",
